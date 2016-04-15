@@ -142,7 +142,7 @@ public class LoginActivity extends AppCompatActivity
       return true;
     }
     if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-      Snackbar.make(mEmailView, R.string.permission_rationale,
+      Snackbar.make(mEmailView, R.string.contacts_permission_rationale,
                     Snackbar.LENGTH_INDEFINITE)
               .setAction(android.R.string.ok, new View.OnClickListener() {
                 @Override

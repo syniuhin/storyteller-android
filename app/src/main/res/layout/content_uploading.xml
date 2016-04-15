@@ -14,11 +14,13 @@
         tools:context="me.syniuhin.storyteller.UploadingActivity">
 
     <ViewSwitcher android:layout_width="match_parent"
-                  android:layout_height="match_parent">
+                  android:layout_height="match_parent"
+                  android:id="@+id/uploading_view_switcher">
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_gravity="center_horizontal"
                   android:layout_marginTop="40dp"
+                  style="@style/TextAppearance.Design.Hint"
                   android:id="@+id/uploading_stub_textview"
                   android:text="@string/uploading_stub_text"/>
         <LinearLayout android:layout_width="match_parent"
