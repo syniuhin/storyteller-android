@@ -1,8 +1,12 @@
 package me.syniuhin.storyteller;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -13,10 +17,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ViewSwitcher;
+import com.squareup.picasso.Picasso;
 
 public class UploadingActivity extends AppCompatActivity {
 
   private static final int EXT_ST_PERMISSION_REQUEST = 1728;
+  private static final int RESULT_IMAGE_PICK = 9874;
 
   private ViewSwitcher mViewSwitcher;
   private ImageView mImageViewSingle;
@@ -48,7 +54,10 @@ public class UploadingActivity extends AppCompatActivity {
     mFab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        askForStoragePermission();
+        if (isStoragePermissionGranted())
+          pickImage();
+        else
+          askForStoragePermission();
       }
     });
   }
@@ -63,6 +72,7 @@ public class UploadingActivity extends AppCompatActivity {
 
   private void checkStoragePermission() {
     if (isStoragePermissionGranted()) {
+      pickImage();
     } else {
       Snackbar.make(mViewSwitcher, R.string.ext_storage_permission_rationale,
                     Snackbar.LENGTH_LONG)
@@ -110,5 +120,45 @@ public class UploadingActivity extends AppCompatActivity {
       // other 'case' lines to check for other
       // permissions this app might request
     }
+  }
+
+  private void pickImage() {
+    Intent i = new Intent(Intent.ACTION_PICK,
+                          MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+    i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+    startActivityForResult(i, RESULT_IMAGE_PICK);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode,
+                                  Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == RESULT_IMAGE_PICK &&
+        resultCode == RESULT_OK &&
+        data != null) {
+      ClipData clipdata = data.getClipData();
+      if (clipdata == null) {
+        // Error
+        Snackbar.make(mViewSwitcher, R.string.error_picking_picture,
+                      Snackbar.LENGTH_SHORT)
+                //.setAction("Action", null)
+                .show();
+      } else {
+        // Fetch 1st photo only
+        final Uri uri = clipdata.getItemAt(0).getUri();
+
+        mViewSwitcher.showNext();
+
+        displayImage(uri);
+      }
+    }
+  }
+
+  private void displayImage(final Uri uri) {
+    Picasso.with(this)
+           .load(uri)
+           .fit()
+           .into(mImageViewSingle);
+    mStoryEditText.requestFocus();
   }
 }

@@ -23,20 +23,22 @@
                   style="@style/TextAppearance.Design.Hint"
                   android:id="@+id/uploading_stub_textview"
                   android:text="@string/uploading_stub_text"/>
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="match_parent">
-            <ImageView android:layout_width="400dp"
-                       android:layout_height="400dp"
+        <RelativeLayout android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+            <ImageView android:layout_width="200dp"
+                       android:layout_height="200dp"
                        android:id="@+id/uploading_imageview_single"
-                       android:visibility="gone"
+                       android:layout_centerHorizontal="true"
+                       android:layout_alignParentTop="true"
                        android:layout_margin="20dp"/>
 
             <EditText android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:id="@+id/uploading_edit_text"
                       android:inputType="textAutoCorrect"
-                      android:layout_margin="@dimen/activity_horizontal_margin"
-                      android:visibility="gone"/>
-        </LinearLayout>
+                      android:layout_below="@+id/uploading_imageview_single"
+                      android:layout_centerHorizontal="true"
+                      android:layout_margin="@dimen/activity_horizontal_margin"/>
+        </RelativeLayout>
     </ViewSwitcher>
 </RelativeLayout>
