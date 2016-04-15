@@ -76,6 +76,14 @@ public class LoginActivity extends AppCompatActivity
     setupViews();
   }
 
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    if (mCompositeSubscription != null &&
+        !mCompositeSubscription.isUnsubscribed())
+      mCompositeSubscription.unsubscribe();
+  }
+
   private void findViews() {
     mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
     mPasswordView = (EditText) findViewById(R.id.password);

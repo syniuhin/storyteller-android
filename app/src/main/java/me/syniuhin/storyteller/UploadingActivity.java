@@ -1,6 +1,8 @@
 package me.syniuhin.storyteller;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,8 +18,25 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.ViewSwitcher;
 import com.squareup.picasso.Picasso;
+import me.syniuhin.storyteller.net.model.BasicResponse;
+import me.syniuhin.storyteller.net.model.Story;
+import me.syniuhin.storyteller.net.service.ServiceGenerator;
+import me.syniuhin.storyteller.net.service.StoryService;
+import me.syniuhin.storyteller.net.util.FileUtils;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Response;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
+
+import java.io.File;
 
 public class UploadingActivity extends AppCompatActivity {
 
@@ -27,8 +46,16 @@ public class UploadingActivity extends AppCompatActivity {
   private ViewSwitcher mViewSwitcher;
   private ImageView mImageViewSingle;
   private EditText mStoryEditText;
+  private ProgressBar mProgressView;
 
   private FloatingActionButton mFab;
+
+  private Uri mImageUri;
+  private long mImageId;
+  private Story mStory;
+
+  private StoryService mStoryService = null;
+  private CompositeSubscription mCompositeSubscription;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +66,16 @@ public class UploadingActivity extends AppCompatActivity {
 
     findViews();
     setupViews();
+    initService();
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    if (mCompositeSubscription != null &&
+        !mCompositeSubscription.isUnsubscribed())
+      mCompositeSubscription.unsubscribe();
   }
 
   private void findViews() {
@@ -48,10 +84,17 @@ public class UploadingActivity extends AppCompatActivity {
     mImageViewSingle = (ImageView) findViewById(
         R.id.uploading_imageview_single);
     mStoryEditText = (EditText) findViewById(R.id.uploading_edit_text);
+    mProgressView = (ProgressBar) findViewById(R.id.uploading_progressbar);
   }
 
   private void setupViews() {
     setFabToPick();
+  }
+
+  private void initService() {
+    // TODO: Implement authentication!!
+    mStoryService = ServiceGenerator.createService(StoryService.class);
+    mCompositeSubscription = new CompositeSubscription();
   }
 
   private void askForStoragePermission() {
@@ -137,7 +180,8 @@ public class UploadingActivity extends AppCompatActivity {
                 .show();
       } else {
         // Fetch 1st photo only
-        final Uri uri = clipdata.getItemAt(0).getUri();
+        final Uri uri = clipdata.getItemAt(0).getUri(); // A lot of them...
+        mImageUri = uri;
 
         mViewSwitcher.showNext();
 
@@ -150,7 +194,8 @@ public class UploadingActivity extends AppCompatActivity {
   private void displayImage(final Uri uri) {
     Picasso.with(this)
            .load(uri)
-           .fit()
+           .resize(400, 400)
+           .centerCrop()
            .into(mImageViewSingle);
   }
 
@@ -161,7 +206,9 @@ public class UploadingActivity extends AppCompatActivity {
     mFab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        // upload
+        final File file = new File(
+            FileUtils.getPath(UploadingActivity.this, mImageUri));
+        uploadPicture(file);
       }
     });
   }
@@ -179,5 +226,85 @@ public class UploadingActivity extends AppCompatActivity {
           askForStoragePermission();
       }
     });
+  }
+
+  private void showProgress(final boolean show) {
+    int mediumAnimTime = getResources().getInteger(
+        android.R.integer.config_mediumAnimTime);
+
+    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+    mProgressView.animate().setDuration(mediumAnimTime).alpha(
+        show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+      @Override
+      public void onAnimationEnd(Animator animation) {
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+      }
+    });
+  }
+
+  private void uploadPicture(final File file) {
+    showProgress(true);
+    RequestBody requestFile =
+        RequestBody.create(MediaType.parse("multipart/form-data"), file);
+    MultipartBody.Part body =
+        MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+
+    Observable<Response<BasicResponse>> o = mStoryService.uploadImage(body);
+    mCompositeSubscription.add(
+        o.observeOn(AndroidSchedulers.mainThread())
+         .subscribeOn(Schedulers.newThread())
+         .subscribe(new Action1<Response<BasicResponse>>() {
+           @Override
+           public void call(Response<BasicResponse> response) {
+             if (response.isSuccessful()) {
+               mImageId = response.body().getImageId();
+               requestStory();
+             } else {
+               showProgress(false);
+               Snackbar.make(mViewSwitcher, "Unexpected error occurred",
+                             Snackbar.LENGTH_SHORT).show();
+             }
+           }
+         }, new Action1<Throwable>() {
+           @Override
+           public void call(Throwable throwable) {
+             showProgress(false);
+             throwable.printStackTrace();
+             Snackbar.make(mViewSwitcher, "Unexpected error occurred",
+                           Snackbar.LENGTH_SHORT).show();
+           }
+         })
+    );
+  }
+
+  private void requestStory() {
+    Observable<Response<Story>> o = mStoryService.getStory(mImageId);
+    mCompositeSubscription.add(
+        o.observeOn(AndroidSchedulers.mainThread())
+         .subscribeOn(Schedulers.newThread())
+         .subscribe(new Action1<Response<Story>>() {
+           @Override
+           public void call(Response<Story> response) {
+             showProgress(false);
+             if (response.isSuccessful()) {
+               mStory = response.body();
+               mStoryEditText.setVisibility(View.VISIBLE);
+               mStoryEditText.setText(mStory.getText());
+               mStoryEditText.requestFocus();
+             } else {
+               Snackbar.make(mViewSwitcher, "Unexpected error occurred",
+                             Snackbar.LENGTH_SHORT).show();
+             }
+           }
+         }, new Action1<Throwable>() {
+           @Override
+           public void call(Throwable throwable) {
+             showProgress(false);
+             throwable.printStackTrace();
+             Snackbar.make(mViewSwitcher, "Unexpected error occurred",
+                           Snackbar.LENGTH_SHORT).show();
+           }
+         })
+    );
   }
 }
