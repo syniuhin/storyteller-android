@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ServiceGenerator {
 
-  public static final String API_BASE_URL = "http://192.168.1.117:4000" +
+  public static final String API_BASE_URL = "http://77.47.204.144:4000" +
       "/storyteller/";
 
   private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();

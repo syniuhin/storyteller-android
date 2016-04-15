@@ -1,5 +1,6 @@
 package me.syniuhin.storyteller.net.service;
 
+import me.syniuhin.storyteller.net.model.Message;
 import me.syniuhin.storyteller.net.model.User;
 import retrofit2.Response;
 import retrofit2.http.Body;
@@ -12,5 +13,5 @@ import rx.Observable;
  */
 public interface UserService {
   @POST("user/login")
-  Observable<Response<String>> login(@Body User user);
+  Observable<Response<Message>> login(@Body User user);
 }

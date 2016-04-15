@@ -5,22 +5,24 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
+import me.syniuhin.storyteller.net.model.Message;
 import me.syniuhin.storyteller.net.model.User;
 import me.syniuhin.storyteller.net.service.ServiceGenerator;
 import me.syniuhin.storyteller.net.service.UserService;
@@ -31,6 +33,7 @@ import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -174,46 +177,59 @@ public class LoginActivity extends AppCompatActivity
     String email = mEmailView.getText().toString();
     String password = mPasswordView.getText().toString();
 
-    boolean cancel = false;
-    View focusView = null;
-
-    // Check for a valid password, if the user entered one.
-/*
-    if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-      mPasswordView.setError(getString(R.string.error_invalid_password));
-      focusView = mPasswordView;
-      cancel = true;
-    }
-*/
-
-    // Check for a valid email address.
-/*
-    if (TextUtils.isEmpty(email)) {
-      mEmailView.setError(getString(R.string.error_field_required));
-      focusView = mEmailView;
-      cancel = true;
-    } else if (!isEmailValid(email)) {
-      mEmailView.setError(getString(R.string.error_invalid_email));
-      focusView = mEmailView;
-      cancel = true;
-    }
-*/
-
     showProgress(true);
-    Observable<Response<String>> o = mUserService.login(
+    Observable<Response<Message>> o = mUserService.login(
         User.create().setEmail(email).setPassword(password));
     mCompositeSubscription.add(
         o.observeOn(AndroidSchedulers.mainThread())
          .subscribeOn(Schedulers.newThread())
-         .subscribe(new Action1<Response<String>>() {
+         .subscribe(new Action1<Response<Message>>() {
            @Override
-           public void call(Response<String> stringResponse) {
-             Log.d("LoginActivity", stringResponse.body());
+           public void call(Response<Message> response) {
+             showProgress(false);
+             if (response.isSuccessful()) {
+               final Message responseBody = response.body();
+               Snackbar.make(mLoginFormView, responseBody.getMessage(),
+                             Snackbar.LENGTH_SHORT)
+                       .setAction("Action", null)
+                       .show();
+               onLoginSuccess(responseBody.getUserId());
+             } else if (response.code() == 401) {
+               try {
+                 Snackbar.make(mLoginFormView,
+                               response.errorBody().string(),
+                               Snackbar.LENGTH_SHORT)
+                         .setAction("Action", null)
+                         .show();
+               } catch (IOException e) {
+                 e.printStackTrace();
+               }
+               mPasswordView.setError(
+                   getString(R.string.error_invalid_password));
+               mEmailView.requestFocus();
+             } else {
+               Snackbar.make(mLoginFormView,
+                             "Unexpected error happened, try later.",
+                             Snackbar.LENGTH_SHORT)
+                       .setAction("Action", null)
+                       .show();
+             }
            }
          }, new Action1<Throwable>() {
            @Override
            public void call(Throwable throwable) {
+             showProgress(false);
              throwable.printStackTrace();
+             Snackbar.make(mLoginFormView,
+                           "Unexpected error happened, try later.",
+                           Snackbar.LENGTH_LONG)
+                     .setAction("Retry", new OnClickListener() {
+                       @Override
+                       public void onClick(View v) {
+                         attemptLogin();
+                       }
+                     })
+                     .show();
            }
          })
     );
@@ -254,6 +270,15 @@ public class LoginActivity extends AppCompatActivity
       mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
       mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
     }
+  }
+
+  private void onLoginSuccess(long userId) {
+    PreferenceManager.getDefaultSharedPreferences(this)
+                     .edit()
+                     .putLong("userId", userId)
+                     .putBoolean("isLoggedIn", true)
+                     .commit();
+    startActivity(new Intent(this, MainActivity.class));
   }
 
   @Override
