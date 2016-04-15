@@ -30,6 +30,15 @@
                 android:label="@string/title_activity_login"
                 android:noHistory="true">
         </activity>
+        <activity
+                android:name=".UploadingActivity"
+                android:label="@string/title_activity_uploading"
+                android:parentActivityName=".MainActivity"
+                android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="me.syniuhin.storyteller.MainActivity"/>
+        </activity>
     </application>
 
 </manifest>

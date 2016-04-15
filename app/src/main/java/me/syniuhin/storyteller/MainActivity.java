@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -29,9 +28,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View view) {
-            Snackbar.make(view, String.valueOf(isLoggedIn()),
-                          Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
+            startUploadingActivity();
           }
         });
       }
@@ -41,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
   private void startLoginActivity() {
     startActivity(new Intent(this, LoginActivity.class));
     finish();
+  }
+
+  private void startUploadingActivity() {
+    startActivity(new Intent(this, UploadingActivity.class));
   }
 
   private boolean isLoggedIn() {
