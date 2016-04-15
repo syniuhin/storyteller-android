@@ -228,6 +228,18 @@ public class UploadingActivity extends AppCompatActivity {
     });
   }
 
+  private void setFabToAccept() {
+    mFab.setImageDrawable(
+        getResources().getDrawable(R.drawable.ic_done_white_24dp,
+                                   this.getTheme()));
+    mFab.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        saveStory();
+      }
+    });
+  }
+
   private void showProgress(final boolean show) {
     int mediumAnimTime = getResources().getInteger(
         android.R.integer.config_mediumAnimTime);
@@ -291,6 +303,7 @@ public class UploadingActivity extends AppCompatActivity {
                mStoryEditText.setVisibility(View.VISIBLE);
                mStoryEditText.setText(mStory.getText());
                mStoryEditText.requestFocus();
+               setFabToAccept();
              } else {
                Snackbar.make(mViewSwitcher, "Unexpected error occurred",
                              Snackbar.LENGTH_SHORT).show();
@@ -301,6 +314,35 @@ public class UploadingActivity extends AppCompatActivity {
            public void call(Throwable throwable) {
              showProgress(false);
              throwable.printStackTrace();
+             Snackbar.make(mViewSwitcher, "Unexpected error occurred",
+                           Snackbar.LENGTH_SHORT).show();
+           }
+         })
+    );
+  }
+
+  private void saveStory() {
+    showProgress(true);
+    mStory.setText(mStoryEditText.getText().toString());
+    Observable<Response<Story>> o =
+        mStoryService.createStory(mImageId, mStory);
+    mCompositeSubscription.add(
+        o.observeOn(AndroidSchedulers.mainThread())
+         .subscribeOn(Schedulers.newThread())
+         .subscribe(new Action1<Response<Story>>() {
+           @Override
+           public void call(Response<Story> response) {
+             showProgress(false);
+             if (response.isSuccessful()) {
+               finish();
+             } else {
+               Snackbar.make(mViewSwitcher, "Unexpected error occurred",
+                             Snackbar.LENGTH_SHORT).show();
+             }
+           }
+         }, new Action1<Throwable>() {
+           @Override
+           public void call(Throwable throwable) {
              Snackbar.make(mViewSwitcher, "Unexpected error occurred",
                            Snackbar.LENGTH_SHORT).show();
            }

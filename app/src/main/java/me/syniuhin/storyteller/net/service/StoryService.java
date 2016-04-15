@@ -18,4 +18,8 @@ public interface StoryService {
 
   @GET("image/{image_id}/story")
   Observable<Response<Story>> getStory(@Path("image_id") long imageId);
+
+  @POST("image/{image_id}/story/create")
+  Observable<Response<Story>> createStory(@Path("image_id") long imageId,
+                                          @Body Story story);
 }
