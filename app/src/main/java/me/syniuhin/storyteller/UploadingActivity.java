@@ -51,15 +51,7 @@ public class UploadingActivity extends AppCompatActivity {
   }
 
   private void setupViews() {
-    mFab.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        if (isStoragePermissionGranted())
-          pickImage();
-        else
-          askForStoragePermission();
-      }
-    });
+    setFabToPick();
   }
 
   private void askForStoragePermission() {
@@ -149,6 +141,7 @@ public class UploadingActivity extends AppCompatActivity {
 
         mViewSwitcher.showNext();
 
+        setFabToUpload();
         displayImage(uri);
       }
     }
@@ -159,6 +152,32 @@ public class UploadingActivity extends AppCompatActivity {
            .load(uri)
            .fit()
            .into(mImageViewSingle);
-    mStoryEditText.requestFocus();
+  }
+
+  private void setFabToUpload() {
+    mFab.setImageDrawable(
+        getResources().getDrawable(R.drawable.ic_file_upload_white_24dp,
+                                   this.getTheme()));
+    mFab.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        // upload
+      }
+    });
+  }
+
+  private void setFabToPick() {
+    mFab.setImageDrawable(
+        getResources().getDrawable(R.drawable.ic_add_white_24dp,
+                                   this.getTheme()));
+    mFab.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (isStoragePermissionGranted())
+          pickImage();
+        else
+          askForStoragePermission();
+      }
+    });
   }
 }
