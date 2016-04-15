@@ -99,14 +99,25 @@ public class LoginActivity extends AppCompatActivity
           }
         });
 
-    Button mEmailSignInButton = (Button) findViewById(
-        R.id.email_sign_in_button);
-    mEmailSignInButton.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        attemptLogin();
-      }
-    });
+    Button mSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+    if (mSignInButton != null) {
+      mSignInButton.setOnClickListener(new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+          attemptLogin();
+        }
+      });
+    }
+
+    Button mRegisterButton = (Button) findViewById(R.id.email_register_button);
+    if (mRegisterButton != null) {
+      mRegisterButton.setOnClickListener(new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          attemptRegister();
+        }
+      });
+    }
   }
 
   private void initRetrofit() {
@@ -245,7 +256,7 @@ public class LoginActivity extends AppCompatActivity
              if (response.isSuccessful()) {
                indicateSuccess(response.body().getMessage());
                attemptLogin();
-             } else if (response.code() == 401) {
+             } else if (response.code() == 403) {
                try {
                  onDefinedError(response.errorBody().string());
                } catch (IOException e) {
