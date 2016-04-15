@@ -22,7 +22,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
-import me.syniuhin.storyteller.net.model.Message;
+import me.syniuhin.storyteller.net.model.BasicResponse;
 import me.syniuhin.storyteller.net.model.User;
 import me.syniuhin.storyteller.net.service.ServiceGenerator;
 import me.syniuhin.storyteller.net.service.UserService;
@@ -178,21 +178,18 @@ public class LoginActivity extends AppCompatActivity
     String password = mPasswordView.getText().toString();
 
     showProgress(true);
-    Observable<Response<Message>> o = mUserService.login(
+    Observable<Response<BasicResponse>> o = mUserService.login(
         User.create().setEmail(email).setPassword(password));
     mCompositeSubscription.add(
         o.observeOn(AndroidSchedulers.mainThread())
          .subscribeOn(Schedulers.newThread())
-         .subscribe(new Action1<Response<Message>>() {
+         .subscribe(new Action1<Response<BasicResponse>>() {
            @Override
-           public void call(Response<Message> response) {
+           public void call(Response<BasicResponse> response) {
              showProgress(false);
              if (response.isSuccessful()) {
-               final Message responseBody = response.body();
-               Snackbar.make(mLoginFormView, responseBody.getMessage(),
-                             Snackbar.LENGTH_SHORT)
-                       .setAction("Action", null)
-                       .show();
+               final BasicResponse responseBody = response.body();
+               indicateSuccess(responseBody.getMessage());
                onLoginSuccess(responseBody.getUserId());
              } else if (response.code() == 401) {
                try {
@@ -208,6 +205,53 @@ public class LoginActivity extends AppCompatActivity
                    getString(R.string.error_invalid_password));
                mEmailView.requestFocus();
              } else {
+               onUndefinedError(null);
+             }
+           }
+         }, new Action1<Throwable>() {
+           @Override
+           public void call(Throwable throwable) {
+             throwable.printStackTrace();
+             onUndefinedError(new OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                 attemptLogin();
+               }
+             });
+           }
+         })
+    );
+  }
+
+  private void attemptRegister() {
+    // Reset errors.
+    mEmailView.setError(null);
+    mPasswordView.setError(null);
+
+    // Store values at the time of the login attempt.
+    String email = mEmailView.getText().toString();
+    String password = mPasswordView.getText().toString();
+
+    showProgress(true);
+    Observable<Response<BasicResponse>> o = mUserService.register(
+        User.create().setEmail(email).setPassword(password));
+    mCompositeSubscription.add(
+        o.observeOn(AndroidSchedulers.mainThread())
+         .subscribeOn(Schedulers.newThread())
+         .subscribe(new Action1<Response<BasicResponse>>() {
+           @Override
+           public void call(Response<BasicResponse> response) {
+             showProgress(false);
+             if (response.isSuccessful()) {
+               indicateSuccess(response.body().getMessage());
+               attemptLogin();
+             } else if (response.code() == 401) {
+               try {
+                 onDefinedError(response.errorBody().string());
+               } catch (IOException e) {
+                 e.printStackTrace();
+               }
+             } else {
                Snackbar.make(mLoginFormView,
                              "Unexpected error happened, try later.",
                              Snackbar.LENGTH_SHORT)
@@ -218,18 +262,13 @@ public class LoginActivity extends AppCompatActivity
          }, new Action1<Throwable>() {
            @Override
            public void call(Throwable throwable) {
-             showProgress(false);
              throwable.printStackTrace();
-             Snackbar.make(mLoginFormView,
-                           "Unexpected error happened, try later.",
-                           Snackbar.LENGTH_LONG)
-                     .setAction("Retry", new OnClickListener() {
-                       @Override
-                       public void onClick(View v) {
-                         attemptLogin();
-                       }
-                     })
-                     .show();
+             onUndefinedError(new OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                 attemptRegister();
+               }
+             });
            }
          })
     );
@@ -272,6 +311,13 @@ public class LoginActivity extends AppCompatActivity
     }
   }
 
+  private void indicateSuccess(String message) {
+    Snackbar.make(mLoginFormView, message,
+                  Snackbar.LENGTH_SHORT)
+            .setAction("Action", null)
+            .show();
+  }
+
   private void onLoginSuccess(long userId) {
     PreferenceManager.getDefaultSharedPreferences(this)
                      .edit()
@@ -279,6 +325,23 @@ public class LoginActivity extends AppCompatActivity
                      .putBoolean("isLoggedIn", true)
                      .commit();
     startActivity(new Intent(this, MainActivity.class));
+  }
+
+  private void onDefinedError(String message) {
+    Snackbar.make(mLoginFormView, message,
+                  Snackbar.LENGTH_SHORT)
+            .setAction("Action", null)
+            .show();
+    mEmailView.requestFocus();
+  }
+
+  private void onUndefinedError(OnClickListener action) {
+    showProgress(false);
+    Snackbar.make(mLoginFormView,
+                  "Unexpected error happened, try later.",
+                  Snackbar.LENGTH_LONG)
+            .setAction("Retry", action)
+            .show();
   }
 
   @Override

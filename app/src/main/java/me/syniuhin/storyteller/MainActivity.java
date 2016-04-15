@@ -19,8 +19,7 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     if (!isLoggedIn()) {
-      startActivity(new Intent(this, LoginActivity.class));
-      finish();
+      startLoginActivity();
     } else {
       Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
       setSupportActionBar(toolbar);
@@ -39,9 +38,23 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+  private void startLoginActivity() {
+    startActivity(new Intent(this, LoginActivity.class));
+    finish();
+  }
+
   private boolean isLoggedIn() {
     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
     return sp.getBoolean("isLoggedIn", false);
+  }
+
+  private void logout() {
+    PreferenceManager.getDefaultSharedPreferences(this)
+                     .edit()
+                     .putBoolean("isLoggedIn", false)
+                     .putLong("userId", -1)
+                     .commit();
+    startLoginActivity();
   }
 
   @Override
@@ -53,16 +66,13 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    // Handle action bar item clicks here. The action bar will
-    // automatically handle clicks on the Home/Up button, so long
-    // as you specify a parent activity in AndroidManifest.xml.
-    int id = item.getItemId();
-
-    //noinspection SimplifiableIfStatement
-    if (id == R.id.action_settings) {
-      return true;
+    switch (item.getItemId()) {
+      case R.id.action_settings:
+        return true;
+      case R.id.action_logout:
+        logout();
+        return true;
     }
-
     return super.onOptionsItemSelected(item);
   }
 }
