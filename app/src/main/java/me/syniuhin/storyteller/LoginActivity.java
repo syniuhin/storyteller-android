@@ -17,6 +17,7 @@ import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,7 +25,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 import me.syniuhin.storyteller.net.model.BasicResponse;
 import me.syniuhin.storyteller.net.model.User;
-import me.syniuhin.storyteller.net.service.ServiceGenerator;
+import me.syniuhin.storyteller.net.service.SimpleServiceCreator;
 import me.syniuhin.storyteller.net.service.UserService;
 import retrofit2.Response;
 import rx.Observable;
@@ -129,7 +130,8 @@ public class LoginActivity extends AppCompatActivity
   }
 
   private void initRetrofit() {
-    mUserService = ServiceGenerator.createService(UserService.class);
+    mUserService = new SimpleServiceCreator().createInitializer(this)
+                                             .create(UserService.class);
     mCompositeSubscription = new CompositeSubscription();
   }
 
@@ -193,8 +195,8 @@ public class LoginActivity extends AppCompatActivity
     mPasswordView.setError(null);
 
     // Store values at the time of the login attempt.
-    String email = mEmailView.getText().toString();
-    String password = mPasswordView.getText().toString();
+    final String email = mEmailView.getText().toString();
+    final String password = mPasswordView.getText().toString();
 
     showProgress(true);
     Observable<Response<BasicResponse>> o = mUserService.login(
@@ -209,7 +211,7 @@ public class LoginActivity extends AppCompatActivity
              if (response.isSuccessful()) {
                final BasicResponse responseBody = response.body();
                indicateSuccess(responseBody.getMessage());
-               onLoginSuccess(responseBody.getUserId());
+               onLoginSuccess(email, password, responseBody.getUserId());
              } else if (response.code() == 401) {
                try {
                  Snackbar.make(mLoginFormView,
@@ -337,11 +339,16 @@ public class LoginActivity extends AppCompatActivity
             .show();
   }
 
-  private void onLoginSuccess(long userId) {
+  private void onLoginSuccess(final String email, final String password,
+                              final long userId) {
+    final String credentials = email + ":" + password;
     PreferenceManager.getDefaultSharedPreferences(this)
                      .edit()
                      .putLong("userId", userId)
                      .putBoolean("isLoggedIn", true)
+                     .putString("basicAuthHeader",
+                                Base64.encodeToString(credentials.getBytes(),
+                                                      Base64.NO_WRAP))
                      .commit();
     startActivity(new Intent(this, MainActivity.class));
   }

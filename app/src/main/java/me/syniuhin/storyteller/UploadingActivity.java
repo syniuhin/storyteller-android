@@ -23,7 +23,7 @@ import android.widget.ViewSwitcher;
 import com.squareup.picasso.Picasso;
 import me.syniuhin.storyteller.net.model.BasicResponse;
 import me.syniuhin.storyteller.net.model.Story;
-import me.syniuhin.storyteller.net.service.ServiceGenerator;
+import me.syniuhin.storyteller.net.service.BasicAuthServiceCreator;
 import me.syniuhin.storyteller.net.service.StoryService;
 import me.syniuhin.storyteller.net.util.FileUtils;
 import okhttp3.MediaType;
@@ -93,7 +93,8 @@ public class UploadingActivity extends AppCompatActivity {
 
   private void initService() {
     // TODO: Implement authentication!!
-    mStoryService = ServiceGenerator.createService(StoryService.class);
+    mStoryService = new BasicAuthServiceCreator().createInitializer(this)
+                                                 .create(StoryService.class);
     mCompositeSubscription = new CompositeSubscription();
   }
 
