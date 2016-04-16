@@ -1,4 +1,4 @@
-package me.syniuhin.storyteller.net.service;
+package me.syniuhin.storyteller.net.service.creator;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
@@ -7,16 +7,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
 
 import java.io.IOException;
 
 /**
  * Created with love, by infm dated on 4/16/16.
  */
-public class BasicAuthServiceCreator extends ServiceCreator {
+public class BasicAuthClientCreator extends ClientCreator {
   @Override
-  public Retrofit createInitializer(Context context) {
+  public OkHttpClient createClient(Context context) {
     httpClientBuilder
         .addInterceptor(new HttpLoggingInterceptor()
                             .setLevel(HttpLoggingInterceptor.Level.BODY));
@@ -42,7 +41,6 @@ public class BasicAuthServiceCreator extends ServiceCreator {
       }
     });
 
-    OkHttpClient client = httpClientBuilder.build();
-    return retrofitBuilder.client(client).build();
+    return httpClientBuilder.build();
   }
 }

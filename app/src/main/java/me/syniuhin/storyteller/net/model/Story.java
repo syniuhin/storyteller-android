@@ -23,6 +23,9 @@ public class Story {
   @SerializedName("user_id")
   private long userId;
 
+  @SerializedName("picture_url")
+  private String pictureUrl;
+
   public String getText() {
     return text;
   }
@@ -45,6 +48,10 @@ public class Story {
 
   public long getUserId() {
     return userId;
+  }
+
+  public String getPictureUrl() {
+    return pictureUrl;
   }
 
   public static class Multiple {

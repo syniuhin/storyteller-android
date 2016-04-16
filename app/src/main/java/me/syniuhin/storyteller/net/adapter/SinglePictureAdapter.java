@@ -7,16 +7,23 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 import me.syniuhin.storyteller.R;
 import me.syniuhin.storyteller.net.model.Story;
+import okhttp3.OkHttpClient;
 
 /**
  * Created with love, by infm dated on 4/16/16.
  */
 public class SinglePictureAdapter extends ArrayAdapter<Story> {
-  public SinglePictureAdapter(Context context) {
+  // TODO: Get read of this or prove it can\'t cause leaks.
+  private Picasso.Builder picassoBuilder;
+
+  public SinglePictureAdapter(Context context, OkHttpClient httpClient) {
     super(context, R.layout.single_picture_item);
+    picassoBuilder = new Picasso.Builder(context).downloader(
+        new OkHttp3Downloader(httpClient));
   }
 
   @Override
@@ -40,13 +47,11 @@ public class SinglePictureAdapter extends ArrayAdapter<Story> {
 
     Story item = getItem(position);
     holder.storyTextView.setText(item.getText());
-    Picasso.with(getContext())
-           .load(R.drawable.ic_done_white_24dp)
+    picassoBuilder.build()
+           .load(item.getPictureUrl())
            .resize(50, 50)
            .centerCrop()
            .into(holder.imageView);
-    holder.imageView.setBackgroundColor(
-        getContext().getColor(R.color.colorPrimaryDark));
     v.setTag(holder);
     return v;
   }

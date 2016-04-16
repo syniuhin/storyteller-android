@@ -14,8 +14,9 @@ import android.view.View;
 import android.widget.ListView;
 import me.syniuhin.storyteller.net.adapter.SinglePictureAdapter;
 import me.syniuhin.storyteller.net.model.Story;
-import me.syniuhin.storyteller.net.service.BasicAuthServiceCreator;
-import me.syniuhin.storyteller.net.service.StoryService;
+import me.syniuhin.storyteller.net.service.api.StoryService;
+import me.syniuhin.storyteller.net.service.creator.BasicAuthClientCreator;
+import me.syniuhin.storyteller.net.service.creator.BasicAuthServiceCreator;
 import retrofit2.Response;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -72,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
       }
     });
 
-    mAdapter = new SinglePictureAdapter(this);
+    mAdapter = new SinglePictureAdapter(
+        this, new BasicAuthClientCreator().createClient(this));
     mListView.setAdapter(mAdapter);
   }
 

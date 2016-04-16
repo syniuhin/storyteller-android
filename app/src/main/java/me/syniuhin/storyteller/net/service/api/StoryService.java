@@ -1,4 +1,4 @@
-package me.syniuhin.storyteller.net.service;
+package me.syniuhin.storyteller.net.service.api;
 
 import me.syniuhin.storyteller.net.model.BasicResponse;
 import me.syniuhin.storyteller.net.model.Story;
