@@ -41,6 +41,10 @@
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value="me.syniuhin.storyteller.MainActivity"/>
         </activity>
+        <provider
+                android:name="me.syniuhin.storyteller.provider.StorytellerProvider"
+                android:authorities="me.syniuhin.storyteller.provider"
+                android:exported="false"/>
     </application>
 
 </manifest>
