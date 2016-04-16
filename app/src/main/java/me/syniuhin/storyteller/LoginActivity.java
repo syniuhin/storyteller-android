@@ -16,7 +16,6 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.View;
@@ -25,8 +24,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 import me.syniuhin.storyteller.net.model.BasicResponse;
 import me.syniuhin.storyteller.net.model.User;
-import me.syniuhin.storyteller.net.service.creator.SimpleServiceCreator;
 import me.syniuhin.storyteller.net.service.api.UserService;
+import me.syniuhin.storyteller.net.service.creator.SimpleServiceCreator;
 import retrofit2.Response;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -43,7 +42,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity
+public class LoginActivity extends BaseActivity
     implements LoaderCallbacks<Cursor> {
 
   /**
@@ -65,34 +64,24 @@ public class LoginActivity extends AppCompatActivity
   private View mLoginFormView;
 
   private UserService mUserService = null;
-  private CompositeSubscription mCompositeSubscription;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_login);
     findViews();
-
-    initRetrofit();
+    initService();
     setupViews();
   }
 
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    if (mCompositeSubscription != null &&
-        !mCompositeSubscription.isUnsubscribed())
-      mCompositeSubscription.unsubscribe();
-  }
-
-  private void findViews() {
+  protected void findViews() {
     mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
     mPasswordView = (EditText) findViewById(R.id.password);
     mLoginFormView = findViewById(R.id.login_form);
     mProgressView = findViewById(R.id.login_progress);
   }
 
-  private void setupViews() {
+  protected void setupViews() {
     populateAutoComplete();
 
     mPasswordView.setOnEditorActionListener(
@@ -129,10 +118,11 @@ public class LoginActivity extends AppCompatActivity
     }
   }
 
-  private void initRetrofit() {
+  @Override
+  protected void initService() {
     mUserService = new SimpleServiceCreator().createInitializer(this)
                                              .create(UserService.class);
-    mCompositeSubscription = new CompositeSubscription();
+    compositeSubscription = new CompositeSubscription();
   }
 
   private void populateAutoComplete() {
@@ -201,7 +191,7 @@ public class LoginActivity extends AppCompatActivity
     showProgress(true);
     Observable<Response<BasicResponse>> o = mUserService.login(
         User.create().setEmail(email).setPassword(password));
-    mCompositeSubscription.add(
+    compositeSubscription.add(
         o.observeOn(AndroidSchedulers.mainThread())
          .subscribeOn(Schedulers.newThread())
          .subscribe(new Action1<Response<BasicResponse>>() {
@@ -256,7 +246,7 @@ public class LoginActivity extends AppCompatActivity
     showProgress(true);
     Observable<Response<BasicResponse>> o = mUserService.register(
         User.create().setEmail(email).setPassword(password));
-    mCompositeSubscription.add(
+    compositeSubscription.add(
         o.observeOn(AndroidSchedulers.mainThread())
          .subscribeOn(Schedulers.newThread())
          .subscribe(new Action1<Response<BasicResponse>>() {

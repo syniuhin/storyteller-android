@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,7 +23,7 @@ import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
   private Toolbar mToolbar;
   private FloatingActionButton mFab;
@@ -33,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
   private SinglePictureAdapter mAdapter;
 
   private StoryService mStoryService = null;
-  private CompositeSubscription mCompositeSubscription;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -49,21 +47,13 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    if (mCompositeSubscription != null &&
-        !mCompositeSubscription.isUnsubscribed())
-      mCompositeSubscription.unsubscribe();
-  }
-
-  private void findViews() {
+  protected void findViews() {
     mToolbar = (Toolbar) findViewById(R.id.toolbar);
     mFab = (FloatingActionButton) findViewById(R.id.fab);
     mListView = (ListView) findViewById(R.id.main_listview);
   }
 
-  private void setupViews() {
+  protected void setupViews() {
     setSupportActionBar(mToolbar);
 
     mFab.setOnClickListener(new View.OnClickListener() {
@@ -78,15 +68,15 @@ public class MainActivity extends AppCompatActivity {
     mListView.setAdapter(mAdapter);
   }
 
-  private void initService() {
+  protected void initService() {
     mStoryService = new BasicAuthServiceCreator().createInitializer(this)
                                                  .create(StoryService.class);
-    mCompositeSubscription = new CompositeSubscription();
+    compositeSubscription = new CompositeSubscription();
   }
 
   private void loadStories() {
     Observable<Response<Story.Multiple>> o = mStoryService.getStoryList();
-    mCompositeSubscription.add(
+    compositeSubscription.add(
         o.observeOn(AndroidSchedulers.mainThread())
          .subscribeOn(Schedulers.newThread())
          .subscribe(new Action1<Response<Story.Multiple>>() {

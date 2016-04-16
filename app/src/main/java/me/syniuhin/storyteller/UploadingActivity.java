@@ -13,7 +13,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
@@ -23,8 +22,8 @@ import android.widget.ViewSwitcher;
 import com.squareup.picasso.Picasso;
 import me.syniuhin.storyteller.net.model.BasicResponse;
 import me.syniuhin.storyteller.net.model.Story;
-import me.syniuhin.storyteller.net.service.creator.BasicAuthServiceCreator;
 import me.syniuhin.storyteller.net.service.api.StoryService;
+import me.syniuhin.storyteller.net.service.creator.BasicAuthServiceCreator;
 import me.syniuhin.storyteller.net.util.FileUtils;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -38,7 +37,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import java.io.File;
 
-public class UploadingActivity extends AppCompatActivity {
+public class UploadingActivity extends BaseActivity {
 
   private static final int EXT_ST_PERMISSION_REQUEST = 1728;
   private static final int RESULT_IMAGE_PICK = 9874;
@@ -55,7 +54,6 @@ public class UploadingActivity extends AppCompatActivity {
   private Story mStory;
 
   private StoryService mStoryService = null;
-  private CompositeSubscription mCompositeSubscription;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -70,15 +68,7 @@ public class UploadingActivity extends AppCompatActivity {
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
   }
 
-  @Override
-  protected void onDestroy() {
-    super.onDestroy();
-    if (mCompositeSubscription != null &&
-        !mCompositeSubscription.isUnsubscribed())
-      mCompositeSubscription.unsubscribe();
-  }
-
-  private void findViews() {
+  protected void findViews() {
     mFab = (FloatingActionButton) findViewById(R.id.fab);
     mViewSwitcher = (ViewSwitcher) findViewById(R.id.uploading_view_switcher);
     mImageViewSingle = (ImageView) findViewById(
@@ -87,14 +77,14 @@ public class UploadingActivity extends AppCompatActivity {
     mProgressView = (ProgressBar) findViewById(R.id.uploading_progressbar);
   }
 
-  private void setupViews() {
+  protected void setupViews() {
     setFabToPick();
   }
 
-  private void initService() {
+  protected void initService() {
     mStoryService = new BasicAuthServiceCreator().createInitializer(this)
                                                  .create(StoryService.class);
-    mCompositeSubscription = new CompositeSubscription();
+    compositeSubscription = new CompositeSubscription();
   }
 
   private void askForStoragePermission() {
@@ -262,7 +252,7 @@ public class UploadingActivity extends AppCompatActivity {
         MultipartBody.Part.createFormData("image", file.getName(), requestFile);
 
     Observable<Response<BasicResponse>> o = mStoryService.uploadImage(body);
-    mCompositeSubscription.add(
+    compositeSubscription.add(
         o.observeOn(AndroidSchedulers.mainThread())
          .subscribeOn(Schedulers.newThread())
          .subscribe(new Action1<Response<BasicResponse>>() {
@@ -291,7 +281,7 @@ public class UploadingActivity extends AppCompatActivity {
 
   private void requestStory() {
     Observable<Response<Story>> o = mStoryService.getStory(mImageId);
-    mCompositeSubscription.add(
+    compositeSubscription.add(
         o.observeOn(AndroidSchedulers.mainThread())
          .subscribeOn(Schedulers.newThread())
          .subscribe(new Action1<Response<Story>>() {
@@ -326,7 +316,7 @@ public class UploadingActivity extends AppCompatActivity {
     mStory.setText(mStoryEditText.getText().toString());
     Observable<Response<Story>> o =
         mStoryService.createStory(mImageId, mStory);
-    mCompositeSubscription.add(
+    compositeSubscription.add(
         o.observeOn(AndroidSchedulers.mainThread())
          .subscribeOn(Schedulers.newThread())
          .subscribe(new Action1<Response<Story>>() {
