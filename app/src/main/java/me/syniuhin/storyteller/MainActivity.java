@@ -10,8 +10,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
+import me.syniuhin.storyteller.net.adapter.SinglePictureAdapter;
 
 public class MainActivity extends AppCompatActivity {
+
+  private Toolbar mToolbar;
+  private FloatingActionButton mFab;
+
+  private ListView mListView;
+  private SinglePictureAdapter mAdapter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -20,19 +28,29 @@ public class MainActivity extends AppCompatActivity {
     if (!isLoggedIn()) {
       startLoginActivity();
     } else {
-      Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-      setSupportActionBar(toolbar);
-
-      FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-      if (fab != null) {
-        fab.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View view) {
-            startUploadingActivity();
-          }
-        });
-      }
+      findViews();
+      setupViews();
     }
+  }
+
+  private void findViews() {
+    mToolbar = (Toolbar) findViewById(R.id.toolbar);
+    mFab = (FloatingActionButton) findViewById(R.id.fab);
+    mListView = (ListView) findViewById(R.id.main_listview);
+  }
+
+  private void setupViews() {
+    setSupportActionBar(mToolbar);
+
+    mFab.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        startUploadingActivity();
+      }
+    });
+
+    mAdapter = new SinglePictureAdapter(this);
+    mListView.setAdapter(mAdapter);
   }
 
   private void startLoginActivity() {
