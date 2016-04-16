@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -12,6 +13,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import me.syniuhin.storyteller.net.adapter.SinglePictureAdapter;
+import me.syniuhin.storyteller.net.model.Story;
+import me.syniuhin.storyteller.net.service.BasicAuthServiceCreator;
+import me.syniuhin.storyteller.net.service.StoryService;
+import retrofit2.Response;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
 
   private ListView mListView;
   private SinglePictureAdapter mAdapter;
+
+  private StoryService mStoryService = null;
+  private CompositeSubscription mCompositeSubscription;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -30,7 +43,17 @@ public class MainActivity extends AppCompatActivity {
     } else {
       findViews();
       setupViews();
+      initService();
+      loadStories();
     }
+  }
+
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    if (mCompositeSubscription != null &&
+        !mCompositeSubscription.isUnsubscribed())
+      mCompositeSubscription.unsubscribe();
   }
 
   private void findViews() {
@@ -51,6 +74,39 @@ public class MainActivity extends AppCompatActivity {
 
     mAdapter = new SinglePictureAdapter(this);
     mListView.setAdapter(mAdapter);
+  }
+
+  private void initService() {
+    mStoryService = new BasicAuthServiceCreator().createInitializer(this)
+                                                 .create(StoryService.class);
+    mCompositeSubscription = new CompositeSubscription();
+  }
+
+  private void loadStories() {
+    Observable<Response<Story.Multiple>> o = mStoryService.getStoryList();
+    mCompositeSubscription.add(
+        o.observeOn(AndroidSchedulers.mainThread())
+         .subscribeOn(Schedulers.newThread())
+         .subscribe(new Action1<Response<Story.Multiple>>() {
+           @Override
+           public void call(Response<Story.Multiple> multiple) {
+             if (multiple.isSuccessful()) {
+               mAdapter.clear();
+               mAdapter.addAll(multiple.body().getStories());
+             } else {
+               Snackbar.make(mListView, "Unexpected error happened",
+                             Snackbar.LENGTH_SHORT).show();
+             }
+           }
+         }, new Action1<Throwable>() {
+           @Override
+           public void call(Throwable throwable) {
+             throwable.printStackTrace();
+             Snackbar.make(mListView, "Unexpected error happened",
+                           Snackbar.LENGTH_SHORT).show();
+           }
+         })
+    );
   }
 
   private void startLoginActivity() {

@@ -92,7 +92,6 @@ public class UploadingActivity extends AppCompatActivity {
   }
 
   private void initService() {
-    // TODO: Implement authentication!!
     mStoryService = new BasicAuthServiceCreator().createInitializer(this)
                                                  .create(StoryService.class);
     mCompositeSubscription = new CompositeSubscription();

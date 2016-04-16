@@ -9,12 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import me.syniuhin.storyteller.R;
-import me.syniuhin.storyteller.net.model.SinglePictureStory;
+import me.syniuhin.storyteller.net.model.Story;
 
 /**
  * Created with love, by infm dated on 4/16/16.
  */
-public class SinglePictureAdapter extends ArrayAdapter<SinglePictureStory> {
+public class SinglePictureAdapter extends ArrayAdapter<Story> {
   public SinglePictureAdapter(Context context) {
     super(context, R.layout.single_picture_item);
   }
@@ -38,8 +38,8 @@ public class SinglePictureAdapter extends ArrayAdapter<SinglePictureStory> {
       holder = (ItemHolder) v.getTag();
     }
 
-    SinglePictureStory item = getItem(position);
-    holder.storyTextView.setText(item.text);
+    Story item = getItem(position);
+    holder.storyTextView.setText(item.getText());
     Picasso.with(getContext())
            .load(R.drawable.ic_done_white_24dp)
            .resize(50, 50)
