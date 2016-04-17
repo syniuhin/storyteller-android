@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 import me.syniuhin.storyteller.R;
-import me.syniuhin.storyteller.provider.story.StoryColumns;
+import me.syniuhin.storyteller.provider.story.StoryCursor;
 import okhttp3.OkHttpClient;
 
 /**
@@ -32,12 +32,11 @@ public class SinglePictureAdapter
   @Override
   public void onBindViewHolderCursor(
       StoryItemHolder holder, Cursor cursor) {
-    int textColumn = cursor.getColumnIndex(StoryColumns.TEXT);
-    int imageUrlColumn = cursor.getColumnIndex(StoryColumns.PICTURE_URL);
-
-    holder.storyTextView.setText(cursor.getString(textColumn));
+    StoryCursor sc = new StoryCursor(cursor);
+    holder.storyTextView.setText(sc.getText());
+    holder.timeTextView.setText(sc.getTimeCreated());
     picassoBuilder.build()
-                  .load(cursor.getString(imageUrlColumn))
+                  .load(sc.getPictureUrl())
                   .fit()
                   .centerCrop()
                   .into(holder.imageView);
@@ -53,11 +52,13 @@ public class SinglePictureAdapter
 
   public static class StoryItemHolder extends RecyclerView.ViewHolder {
     TextView storyTextView;
+    TextView timeTextView;
     ImageView imageView;
 
     public StoryItemHolder(View itemView) {
       super(itemView);
-      storyTextView = (TextView) itemView.findViewById(R.id.cardview_textview);
+      storyTextView = (TextView) itemView.findViewById(R.id.cardview_story_textview);
+      timeTextView = (TextView) itemView.findViewById(R.id.cardview_time_textview);
       imageView = (ImageView) itemView.findViewById(R.id.cardview_imageview);
     }
   }

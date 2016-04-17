@@ -8,13 +8,13 @@
             android:id="@+id/main_recview_cardview"
             android:layout_gravity="center"
             android:layout_width="match_parent"
-            android:layout_height="270dp"
+            android:layout_height="wrap_content"
             android:clickable="true"
             android:layout_margin="5dp"
             card_view:cardCornerRadius="4dp">
 
         <RelativeLayout android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="match_parent">
             <ImageView android:layout_width="match_parent"
                        android:layout_height="210dp"
                        android:id="@+id/cardview_imageview"
@@ -22,15 +22,26 @@
                        android:layout_alignParentStart="true"
                        android:elevation="8dp"/>
 
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/cardview_time_textview"
+                      android:text="@string/sample_time"
+                      style="@style/TextAppearance.AppCompat.Caption"
+                      android:layout_below="@+id/cardview_imageview"
+                      android:layout_alignParentStart="true"
+                      android:layout_marginLeft="25dp"
+                      android:layout_marginTop="5dp"/>
             <TextView android:layout_width="match_parent"
                       android:layout_height="wrap_content"
-                      android:id="@+id/cardview_textview"
-                      android:text="Title title title"
-                      style="@style/TextAppearance.AppCompat.Caption"
+                      android:id="@+id/cardview_story_textview"
+                      android:text="@string/sample_story"
+                      style="@style/TextAppearance.AppCompat.Subhead"
                       android:maxLines="5"
-                      android:layout_below="@+id/cardview_imageview"
-                      android:paddingLeft="15dp" android:paddingRight="15dp"
-                      android:layout_marginTop="5dp"/>
+                      android:paddingLeft="15dp"
+                      android:paddingRight="15dp"
+                      android:layout_marginTop="5dp"
+                      android:layout_marginBottom="5dp"
+                      android:layout_below="@id/cardview_time_textview"/>
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>
