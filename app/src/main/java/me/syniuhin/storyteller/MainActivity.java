@@ -41,13 +41,12 @@ public class MainActivity extends BaseActivity implements
   private Toolbar mToolbar;
   private FloatingActionButton mFab;
 
-  private SwipeRefreshLayout mSwipeRefresh;
+  private SwipeRefreshLayout mSwipeRefreshView;
   private RecyclerView mRecyclerView;
   private SinglePictureAdapter mAdapter;
   private RecyclerView.LayoutManager mLayoutManager;
 
   private StoryService mStoryService = null;
-
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +71,7 @@ public class MainActivity extends BaseActivity implements
     mToolbar = (Toolbar) findViewById(R.id.toolbar);
     mFab = (FloatingActionButton) findViewById(R.id.fab);
     mRecyclerView = (RecyclerView) findViewById(R.id.main_recyclerview);
-    mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.main_swipenrefresh);
+    mSwipeRefreshView = (SwipeRefreshLayout) findViewById(R.id.main_swipenrefresh);
   }
 
   protected void setupViews() {
@@ -94,7 +93,7 @@ public class MainActivity extends BaseActivity implements
         null, this, this);
     mRecyclerView.setAdapter(mAdapter);
 
-    mSwipeRefresh.setOnRefreshListener(
+    mSwipeRefreshView.setOnRefreshListener(
         new SwipeRefreshLayout.OnRefreshListener() {
           @Override
           public void onRefresh() {
@@ -108,7 +107,8 @@ public class MainActivity extends BaseActivity implements
   protected void initService() {
     mStoryService = new StoryServiceProxy(
         new BasicAuthServiceCreator().createInitializer(this)
-                                     .create(StoryService.class));
+                                     .create(StoryService.class),
+        this, mRecyclerView);
     compositeSubscription = new CompositeSubscription();
   }
 
@@ -158,7 +158,7 @@ public class MainActivity extends BaseActivity implements
   }
 
   private void showProgress(boolean show) {
-    mSwipeRefresh.setRefreshing(show);
+    mSwipeRefreshView.setRefreshing(show);
   }
 
   private void startLoginActivity() {

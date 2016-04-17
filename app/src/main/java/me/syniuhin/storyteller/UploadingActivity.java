@@ -23,6 +23,7 @@ import com.squareup.picasso.Picasso;
 import me.syniuhin.storyteller.net.model.BasicResponse;
 import me.syniuhin.storyteller.net.model.Story;
 import me.syniuhin.storyteller.net.service.api.StoryService;
+import me.syniuhin.storyteller.net.service.api.StoryServiceProxy;
 import me.syniuhin.storyteller.net.service.creator.BasicAuthServiceCreator;
 import me.syniuhin.storyteller.net.util.FileUtils;
 import okhttp3.MediaType;
@@ -85,8 +86,10 @@ public class UploadingActivity extends BaseActivity {
   }
 
   protected void initService() {
-    mStoryService = new BasicAuthServiceCreator().createInitializer(this)
-                                                 .create(StoryService.class);
+    mStoryService = new StoryServiceProxy(
+        new BasicAuthServiceCreator().createInitializer(this)
+                                     .create(StoryService.class),
+        this, mImageViewSingle);
     compositeSubscription = new CompositeSubscription();
   }
 
