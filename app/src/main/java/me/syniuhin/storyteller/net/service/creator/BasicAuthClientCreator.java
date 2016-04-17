@@ -1,9 +1,9 @@
 package me.syniuhin.storyteller.net.service.creator;
 
 import android.content.Context;
-import android.preference.PreferenceManager;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
+import me.syniuhin.storyteller.BaseActivity;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -30,8 +30,9 @@ public class BasicAuthClientCreator extends ClientCreator {
 
     // Get header
     final String basic = "Basic " +
-        PreferenceManager.getDefaultSharedPreferences(context)
-                         .getString("basicAuthHeader", "");
+        context.getSharedPreferences(BaseActivity.PREFS_KEY,
+                                     Context.MODE_PRIVATE)
+               .getString("basicAuthHeader", "");
 
     httpClientBuilder.addInterceptor(new Interceptor() {
       @Override

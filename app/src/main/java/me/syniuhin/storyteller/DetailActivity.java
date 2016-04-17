@@ -50,7 +50,8 @@ public class DetailActivity extends BaseActivity {
 
   @Override
   protected void setupViews() {
-    mPicassoBuilder = BasicAuthClientCreator.createPicassoBuilder(this);
+    mPicassoBuilder = BasicAuthClientCreator.createPicassoBuilder(
+        getApplicationContext());
     Observable<Story> o = Observable.create(
         new Observable.OnSubscribe<Story>() {
           @Override

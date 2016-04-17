@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.view.View;
@@ -21,18 +20,23 @@ import rx.Observable;
 /**
  * Created with love, by infm dated on 4/17/16.
  */
-public class StoryServiceProxy implements StoryService {
-  private StoryService mRealSubject = null;
+public class StoryServiceProxyBridge implements StoryService {
+  private StoryService mImpl = null;
   private Context mContext;
   private final SharedPreferences mSp;
   private View mParentView;
 
-  public StoryServiceProxy(StoryService realSubject, Context context,
-                           View parentView) {
-    mRealSubject = realSubject;
+  public StoryServiceProxyBridge(StoryService impl, Context context,
+                                 View parentView) {
+    mImpl = impl;
     mContext = context;
-    mSp = PreferenceManager.getDefaultSharedPreferences(mContext);
+    mSp = mContext.getSharedPreferences(BaseActivity.PREFS_KEY,
+                                        Context.MODE_PRIVATE);
     mParentView = parentView;
+  }
+
+  public void setImplementation(StoryService impl) {
+    mImpl = impl;
   }
 
   @Override
@@ -41,17 +45,16 @@ public class StoryServiceProxy implements StoryService {
     // Doesn't require authentication
     if (!checkInternetConnection())
       return null;
-    return mRealSubject.uploadImage(file);
+    return mImpl.uploadImage(file);
   }
 
   @Override
-  public Observable<Response<Story>> generateStory(
-      @Path("image_id") long imageId) {
+  public Observable<Response<Story>> generateStory(long imageId) {
     if (!checkInternetConnection())
       return null;
     if (!checkCredentialsAvailability() && !checkIfCredentialsFake())
       return null;
-    return mRealSubject.generateStory(imageId);
+    return mImpl.generateStory(imageId);
   }
 
   @Override
@@ -61,7 +64,7 @@ public class StoryServiceProxy implements StoryService {
       return null;
     if (!checkCredentialsAvailability())
       return null;
-    return mRealSubject.createStory(imageId, story);
+    return mImpl.createStory(imageId, story);
   }
 
   @Override
@@ -70,7 +73,7 @@ public class StoryServiceProxy implements StoryService {
       return null;
     if (!checkCredentialsAvailability())
       return null;
-    return mRealSubject.getStoryList();
+    return mImpl.getStoryList();
   }
 
   @Override
@@ -80,7 +83,7 @@ public class StoryServiceProxy implements StoryService {
       return null;
     if (!checkCredentialsAvailability())
       return null;
-    return mRealSubject.getStoryListSince(timestamp);
+    return mImpl.getStoryListSince(timestamp);
   }
 
   @Override
@@ -90,7 +93,7 @@ public class StoryServiceProxy implements StoryService {
       return null;
     if (!checkCredentialsAvailability())
       return null;
-    return mRealSubject.getStoryListAfter(afterId);
+    return mImpl.getStoryListAfter(afterId);
   }
 
   private boolean checkInternetConnection() {
@@ -119,6 +122,6 @@ public class StoryServiceProxy implements StoryService {
   }
 
   private boolean checkIfCredentialsFake() {
-    return BaseActivity.isDemoRunning(mContext);
+    return BaseActivity.isDemoRunning(mSp);
   }
 }

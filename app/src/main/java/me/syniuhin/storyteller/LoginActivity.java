@@ -12,7 +12,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -285,13 +284,13 @@ public class LoginActivity extends BaseActivity
   }
 
   private void startDemoSession() {
-    PreferenceManager.getDefaultSharedPreferences(this)
-                     .edit()
-                     .putBoolean("isLoggedIn", true)
-                     .putString("basicAuthHeader",
-                                BaseActivity.DEMO_HEADER_BASIC)
-                     .commit();
-    startActivity(new Intent(this, MainActivity.class));
+    getSharedPreferences(PREFS_KEY, MODE_PRIVATE)
+        .edit()
+        .putBoolean("isLoggedIn", true)
+        .putString("basicAuthHeader",
+                   BaseActivity.DEMO_HEADER_BASIC)
+        .commit();
+    startActivity(new Intent(this, UploadingActivity.class));
   }
 
   @Override
@@ -345,14 +344,14 @@ public class LoginActivity extends BaseActivity
   private void onLoginSuccess(final String email, final String password,
                               final long userId) {
     final String credentials = email + ":" + password;
-    PreferenceManager.getDefaultSharedPreferences(this)
-                     .edit()
-                     .putLong("userId", userId)
-                     .putBoolean("isLoggedIn", true)
-                     .putString("basicAuthHeader",
-                                Base64.encodeToString(credentials.getBytes(),
-                                                      Base64.NO_WRAP))
-                     .commit();
+    getSharedPreferences(PREFS_KEY, MODE_PRIVATE)
+        .edit()
+        .putLong("userId", userId)
+        .putBoolean("isLoggedIn", true)
+        .putString("basicAuthHeader",
+                   Base64.encodeToString(credentials.getBytes(),
+                                         Base64.NO_WRAP))
+        .commit();
     startActivity(new Intent(this, MainActivity.class));
   }
 

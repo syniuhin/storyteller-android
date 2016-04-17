@@ -7,7 +7,6 @@ import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -22,7 +21,7 @@ import android.widget.ImageView;
 import me.syniuhin.storyteller.adapter.SinglePictureAdapter;
 import me.syniuhin.storyteller.net.model.Story;
 import me.syniuhin.storyteller.net.service.api.StoryService;
-import me.syniuhin.storyteller.net.service.api.StoryServiceProxy;
+import me.syniuhin.storyteller.net.service.api.StoryServiceProxyBridge;
 import me.syniuhin.storyteller.net.service.creator.BasicAuthServiceCreator;
 import me.syniuhin.storyteller.provider.story.StoryColumns;
 import me.syniuhin.storyteller.provider.story.StoryContentValues;
@@ -92,7 +91,7 @@ public class MainActivity extends BaseActivity implements
     mRecyclerView.setLayoutManager(mLayoutManager);
 
     mAdapter = new SinglePictureAdapter(
-        null, this, this);
+        null, getApplicationContext(), this);
     mRecyclerView.setAdapter(mAdapter);
 
     mSwipeRefreshView.setOnRefreshListener(
@@ -107,7 +106,7 @@ public class MainActivity extends BaseActivity implements
   }
 
   protected void initService() {
-    mStoryService = new StoryServiceProxy(
+    mStoryService = new StoryServiceProxyBridge(
         new BasicAuthServiceCreator().createInitializer(this)
                                      .create(StoryService.class),
         this, mRecyclerView);
@@ -115,8 +114,7 @@ public class MainActivity extends BaseActivity implements
   }
 
   private void loadStories() {
-    final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(
-        this);
+    final SharedPreferences sp = getSharedPreferences(PREFS_KEY, MODE_PRIVATE);
     final long afterId = sp.getLong("storiesAfterId", 0);
     Observable<Response<Story.Multiple>> o =
         mStoryService.getStoryListAfter(afterId);
@@ -180,7 +178,7 @@ public class MainActivity extends BaseActivity implements
   }
 
   private boolean isLoggedIn() {
-    SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+    SharedPreferences sp = getSharedPreferences(PREFS_KEY, MODE_PRIVATE);
     return sp.getBoolean("isLoggedIn", false);
   }
 

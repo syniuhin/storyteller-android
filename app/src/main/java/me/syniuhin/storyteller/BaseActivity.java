@@ -1,7 +1,6 @@
 package me.syniuhin.storyteller;
 
-import android.content.Context;
-import android.preference.PreferenceManager;
+import android.content.SharedPreferences;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
@@ -27,6 +26,8 @@ abstract public class BaseActivity extends AppCompatActivity {
           "username") + ":" + DEMO_CREDENTIALS.get(
           "password")).getBytes(), Base64.NO_WRAP);
 
+  public static final String PREFS_KEY = "ShArEdPrEfFfFs))";
+
   protected CompositeSubscription compositeSubscription = null;
 
   @Override
@@ -50,21 +51,21 @@ abstract public class BaseActivity extends AppCompatActivity {
   }
 
   protected boolean isDemoRunning() {
-    return BaseActivity.isDemoRunning(this);
+    return BaseActivity.isDemoRunning(
+        getSharedPreferences(PREFS_KEY, MODE_PRIVATE));
   }
 
-  public static boolean isDemoRunning(Context context) {
-    return PreferenceManager.getDefaultSharedPreferences(context)
-                            .getString("basicAuthHeader", "")
-                            .equals(DEMO_HEADER_BASIC);
+  public static boolean isDemoRunning(SharedPreferences sp) {
+    return sp.getString("basicAuthHeader", "")
+             .equals(DEMO_HEADER_BASIC);
   }
 
   protected void logout() {
-    PreferenceManager.getDefaultSharedPreferences(this)
-                     .edit()
-                     .putBoolean("isLoggedIn", false)
-                     .putLong("userId", -1)
-                     .putString("basicAuthHeader", "")
-                     .commit();
+    getSharedPreferences(PREFS_KEY, MODE_PRIVATE)
+        .edit()
+        .putBoolean("isLoggedIn", false)
+        .putLong("userId", -1)
+        .putString("basicAuthHeader", "")
+        .commit();
   }
 }
