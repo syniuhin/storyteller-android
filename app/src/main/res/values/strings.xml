@@ -36,4 +36,7 @@
         pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa
         qui officia deserunt mollit anim id est laborum.
     </string>
+
+    <string name="transition_story_picture">StoryPictureTransition71289</string>
+    <string name="title_activity_detail">DetailActivity</string>
 </resources>

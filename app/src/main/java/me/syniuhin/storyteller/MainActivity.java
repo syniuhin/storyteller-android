@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,10 +19,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import me.syniuhin.storyteller.adapter.SinglePictureAdapter;
 import me.syniuhin.storyteller.net.model.Story;
 import me.syniuhin.storyteller.net.service.api.StoryService;
-import me.syniuhin.storyteller.net.service.creator.BasicAuthClientCreator;
 import me.syniuhin.storyteller.net.service.creator.BasicAuthServiceCreator;
 import me.syniuhin.storyteller.provider.story.StoryColumns;
 import me.syniuhin.storyteller.provider.story.StoryContentValues;
@@ -32,7 +34,8 @@ import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends BaseActivity implements
-    LoaderManager.LoaderCallbacks<Cursor> {
+    LoaderManager.LoaderCallbacks<Cursor>,
+    SinglePictureAdapter.StoryItemHolder.ClickCallback {
 
   private Toolbar mToolbar;
   private FloatingActionButton mFab;
@@ -43,6 +46,7 @@ public class MainActivity extends BaseActivity implements
   private RecyclerView.LayoutManager mLayoutManager;
 
   private StoryService mStoryService = null;
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +90,7 @@ public class MainActivity extends BaseActivity implements
     mRecyclerView.setLayoutManager(mLayoutManager);
 
     mAdapter = new SinglePictureAdapter(
-        null, this, new BasicAuthClientCreator().createClient(this));
+        null, this, this);
     mRecyclerView.setAdapter(mAdapter);
 
     mSwipeRefresh.setOnRefreshListener(
@@ -164,6 +168,15 @@ public class MainActivity extends BaseActivity implements
     startActivity(new Intent(this, UploadingActivity.class));
   }
 
+  private void startDetailActivity(final ImageView caller, final long realId) {
+    Intent i = new Intent(this, DetailActivity.class);
+    i.putExtra("storyLocalId", realId);
+    final String transitionName = getString(R.string.transition_story_picture);
+    ActivityOptionsCompat options = ActivityOptionsCompat
+        .makeSceneTransitionAnimation(this, caller, transitionName);
+    ActivityCompat.startActivity(this, i, options.toBundle());
+  }
+
   private boolean isLoggedIn() {
     SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
     return sp.getBoolean("isLoggedIn", false);
@@ -211,5 +224,10 @@ public class MainActivity extends BaseActivity implements
   @Override
   public void onLoaderReset(Loader<Cursor> loader) {
     mAdapter.swapCursor(null);
+  }
+
+  @Override
+  public void onImage(ImageView caller, long realId) {
+    startDetailActivity(caller, realId);
   }
 }

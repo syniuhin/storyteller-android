@@ -54,6 +54,10 @@ public class Story {
     return pictureUrl;
   }
 
+  public void setPictureUrl(String pictureUrl) {
+    this.pictureUrl = pictureUrl;
+  }
+
   public static class Multiple {
     @SerializedName("stories")
     private List<Story> stories;

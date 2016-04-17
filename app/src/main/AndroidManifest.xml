@@ -8,7 +8,6 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.READ_PROFILE"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
@@ -41,10 +40,21 @@
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value="me.syniuhin.storyteller.MainActivity"/>
         </activity>
+
         <provider
-                android:name="me.syniuhin.storyteller.provider.StorytellerProvider"
+                android:name=".provider.StorytellerProvider"
                 android:authorities="me.syniuhin.storyteller.provider"
                 android:exported="false"/>
+
+        <activity
+                android:name=".DetailActivity"
+                android:label="@string/title_activity_detail"
+                android:parentActivityName=".MainActivity"
+                android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value="me.syniuhin.storyteller.MainActivity"/>
+        </activity>
     </application>
 
 </manifest>

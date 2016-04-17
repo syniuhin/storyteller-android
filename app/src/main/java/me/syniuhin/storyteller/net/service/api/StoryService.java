@@ -17,7 +17,7 @@ public interface StoryService {
       @Part MultipartBody.Part file);
 
   @GET("image/{image_id}/story")
-  Observable<Response<Story>> getStory(@Path("image_id") long imageId);
+  Observable<Response<Story>> generateStory(@Path("image_id") long imageId);
 
   @POST("image/{image_id}/story/create")
   Observable<Response<Story>> createStory(@Path("image_id") long imageId,

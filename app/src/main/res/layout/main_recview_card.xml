@@ -20,7 +20,8 @@
                        android:id="@+id/cardview_imageview"
                        android:layout_alignParentTop="true"
                        android:layout_alignParentStart="true"
-                       android:elevation="8dp"/>
+                       android:elevation="8dp"
+                       android:transitionName="@string/transition_story_picture"/>
 
             <TextView android:layout_width="wrap_content"
                       android:layout_height="wrap_content"

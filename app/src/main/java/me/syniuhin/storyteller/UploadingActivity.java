@@ -264,7 +264,7 @@ public class UploadingActivity extends BaseActivity {
   }
 
   private void requestStory() {
-    Observable<Response<Story>> o = mStoryService.getStory(mImageId);
+    Observable<Response<Story>> o = mStoryService.generateStory(mImageId);
     compositeSubscription.add(
         o.observeOn(AndroidSchedulers.mainThread())
          .subscribeOn(Schedulers.newThread())

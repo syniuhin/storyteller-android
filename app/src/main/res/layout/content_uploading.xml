@@ -45,7 +45,7 @@
             <EditText android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:id="@+id/uploading_edit_text"
-                      android:inputType="textAutoCorrect"
+                      android:inputType="textMultiLine"
                       android:layout_below="@+id/uploading_imageview_single"
                       android:layout_centerHorizontal="true"
                       android:layout_margin="@dimen/activity_horizontal_margin"
