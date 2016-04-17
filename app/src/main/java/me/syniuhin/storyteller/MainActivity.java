@@ -109,9 +109,6 @@ public class MainActivity extends BaseActivity implements
   private void loadStories() {
     final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(
         this);
-/*
-    long timestamp = sp.getLong("storiesLastRefreshed", 0);
-*/
     final long afterId = sp.getLong("storiesAfterId", 0);
     Observable<Response<Story.Multiple>> o =
         mStoryService.getStoryListAfter(afterId);
@@ -134,10 +131,6 @@ public class MainActivity extends BaseActivity implements
                  maxId = Math.max(maxId, s.getId());
                }
                sp.edit()
-/*
-                 .putLong("storiesLastRefreshed",
-                          System.currentTimeMillis() / 1000)
-*/
                  .putLong("storiesAfterId", maxId)
                  .apply();
              } else {
