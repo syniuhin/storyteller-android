@@ -1,6 +1,8 @@
 package me.syniuhin.storyteller;
 
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -22,4 +24,8 @@ abstract public class BaseActivity extends AppCompatActivity {
   abstract protected void setupViews();
 
   abstract protected void initService();
+
+  protected void handleUnexpectedError(View v) {
+    Snackbar.make(v, "Unexpected error happened", Snackbar.LENGTH_SHORT).show();
+  }
 }

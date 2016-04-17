@@ -263,11 +263,7 @@ public class LoginActivity extends BaseActivity
                  e.printStackTrace();
                }
              } else {
-               Snackbar.make(mLoginFormView,
-                             "Unexpected error happened, try later.",
-                             Snackbar.LENGTH_SHORT)
-                       .setAction("Action", null)
-                       .show();
+               handleUnexpectedError(mLoginFormView);
              }
            }
          }, new Action1<Throwable>() {
@@ -353,11 +349,7 @@ public class LoginActivity extends BaseActivity
 
   private void onUndefinedError(OnClickListener action) {
     showProgress(false);
-    Snackbar.make(mLoginFormView,
-                  "Unexpected error happened, try later.",
-                  Snackbar.LENGTH_LONG)
-            .setAction("Retry", action)
-            .show();
+    handleUnexpectedError(mLoginFormView);
   }
 
   @Override

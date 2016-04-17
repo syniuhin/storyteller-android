@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -140,8 +139,7 @@ public class MainActivity extends BaseActivity implements
                  .putLong("storiesAfterId", maxId)
                  .apply();
              } else {
-               Snackbar.make(mRecyclerView, "Unexpected error happened",
-                             Snackbar.LENGTH_SHORT).show();
+               handleUnexpectedError(mRecyclerView);
              }
              showProgress(false);
            }
@@ -149,8 +147,7 @@ public class MainActivity extends BaseActivity implements
            @Override
            public void call(Throwable throwable) {
              throwable.printStackTrace();
-             Snackbar.make(mRecyclerView, "Unexpected error happened",
-                           Snackbar.LENGTH_SHORT).show();
+             handleUnexpectedError(mRecyclerView);
              showProgress(false);
            }
          })

@@ -82,8 +82,7 @@ public class DetailActivity extends BaseActivity {
          }, new Action1<Throwable>() {
            @Override
            public void call(Throwable throwable) {
-             Snackbar.make(mImageView, "Unexpected error happened",
-                           Snackbar.LENGTH_SHORT).show();
+             handleUnexpectedError(mImageView);
            }
          })
     );

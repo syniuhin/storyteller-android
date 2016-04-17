@@ -268,8 +268,7 @@ public class UploadingActivity extends BaseActivity {
                requestStory();
              } else {
                showProgress(false);
-               Snackbar.make(mViewSwitcher, "Unexpected error occurred",
-                             Snackbar.LENGTH_SHORT).show();
+               handleUnexpectedError(mViewSwitcher);
              }
            }
          }, new Action1<Throwable>() {
@@ -277,8 +276,7 @@ public class UploadingActivity extends BaseActivity {
            public void call(Throwable throwable) {
              showProgress(false);
              throwable.printStackTrace();
-             Snackbar.make(mViewSwitcher, "Unexpected error occurred",
-                           Snackbar.LENGTH_SHORT).show();
+             handleUnexpectedError(mViewSwitcher);
            }
          })
     );
@@ -300,8 +298,7 @@ public class UploadingActivity extends BaseActivity {
                mStoryEditText.requestFocus();
                setFabToAccept();
              } else {
-               Snackbar.make(mViewSwitcher, "Unexpected error occurred",
-                             Snackbar.LENGTH_SHORT).show();
+               handleUnexpectedError(mViewSwitcher);
              }
            }
          }, new Action1<Throwable>() {
@@ -309,8 +306,7 @@ public class UploadingActivity extends BaseActivity {
            public void call(Throwable throwable) {
              showProgress(false);
              throwable.printStackTrace();
-             Snackbar.make(mViewSwitcher, "Unexpected error occurred",
-                           Snackbar.LENGTH_SHORT).show();
+             handleUnexpectedError(mViewSwitcher);
            }
          })
     );
@@ -331,15 +327,13 @@ public class UploadingActivity extends BaseActivity {
              if (response.isSuccessful()) {
                finish();
              } else {
-               Snackbar.make(mViewSwitcher, "Unexpected error occurred",
-                             Snackbar.LENGTH_SHORT).show();
+               handleUnexpectedError(mViewSwitcher);
              }
            }
          }, new Action1<Throwable>() {
            @Override
            public void call(Throwable throwable) {
-             Snackbar.make(mViewSwitcher, "Unexpected error occurred",
-                           Snackbar.LENGTH_SHORT).show();
+             handleUnexpectedError(mViewSwitcher);
            }
          })
     );
