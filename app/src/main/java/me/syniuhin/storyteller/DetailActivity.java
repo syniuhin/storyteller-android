@@ -6,6 +6,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import me.syniuhin.storyteller.net.model.Story;
 import me.syniuhin.storyteller.net.service.creator.BasicAuthClientCreator;
@@ -69,8 +70,8 @@ public class DetailActivity extends BaseActivity {
                  .getPictureUrl() != null) {
                mPicassoBuilder.build()
                               .load(story.getPictureUrl())
-                              .fit()
-                              .centerCrop()
+                              .memoryPolicy(MemoryPolicy.NO_CACHE)
+                              .resize(1080, 0)
                               .into(mImageView);
                mStoryTextView.setText(story.getText());
              } else {

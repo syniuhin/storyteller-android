@@ -38,7 +38,7 @@ public class SinglePictureAdapter
     holder.realId = sc.getId();
     mPicassoBuilder.build()
                    .load(sc.getPictureUrl())
-                   .fit()
+                   .resize(540, 300)
                    .centerCrop()
                    .into(holder.imageView);
   }
