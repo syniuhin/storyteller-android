@@ -38,7 +38,7 @@ public class SinglePictureAdapter
     holder.storyTextView.setText(cursor.getString(textColumn));
     picassoBuilder.build()
                   .load(cursor.getString(imageUrlColumn))
-                  .resize(50, 50)
+                  .resize(2000, 500)
                   .centerCrop()
                   .into(holder.imageView);
   }
