@@ -29,4 +29,8 @@ public interface StoryService {
   @GET("story/list/since/{unix_timestamp}")
   Observable<Response<Story.Multiple>> getStoryListSince(
       @Path("unix_timestamp") long timestamp);
+
+  @GET("story/list/after/{after_id}")
+  Observable<Response<Story.Multiple>> getStoryListAfter(
+      @Path("after_id") long afterId);
 }

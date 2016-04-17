@@ -109,15 +109,19 @@ public class MainActivity extends BaseActivity implements
   private void loadStories() {
     final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(
         this);
+/*
     long timestamp = sp.getLong("storiesLastRefreshed", 0);
+*/
+    final long afterId = sp.getLong("storiesAfterId", 0);
     Observable<Response<Story.Multiple>> o =
-        mStoryService.getStoryListSince(timestamp);
+        mStoryService.getStoryListAfter(afterId);
     compositeSubscription.add(
         o.observeOn(AndroidSchedulers.mainThread())
          .subscribeOn(Schedulers.newThread())
          .subscribe(new Action1<Response<Story.Multiple>>() {
            @Override
            public void call(Response<Story.Multiple> multiple) {
+             long maxId = afterId;
              if (multiple.isSuccessful()) {
                for (Story s : multiple.body().getStories()) {
                  StoryContentValues cv = new StoryContentValues();
@@ -127,10 +131,14 @@ public class MainActivity extends BaseActivity implements
                    .putTimeCreated(s.getTimeCreated());
                  MainActivity.this.getContentResolver()
                                   .insert(cv.uri(), cv.values());
+                 maxId = Math.max(maxId, s.getId());
                }
                sp.edit()
+/*
                  .putLong("storiesLastRefreshed",
                           System.currentTimeMillis() / 1000)
+*/
+                 .putLong("storiesAfterId", maxId)
                  .apply();
              } else {
                Snackbar.make(mRecyclerView, "Unexpected error happened",
