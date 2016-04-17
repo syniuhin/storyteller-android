@@ -11,7 +11,8 @@ import java.util.concurrent.TimeUnit;
 abstract public class ClientCreator {
   protected OkHttpClient.Builder httpClientBuilder =
       new OkHttpClient.Builder()
-          .connectTimeout(5, TimeUnit.SECONDS);
+          .connectTimeout(300, TimeUnit.SECONDS)
+          .readTimeout(300, TimeUnit.SECONDS);
 
   abstract public OkHttpClient createClient(Context context);
 }

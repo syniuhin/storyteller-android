@@ -42,6 +42,9 @@ public class UploadingActivity extends BaseActivity {
   private static final int EXT_ST_PERMISSION_REQUEST = 1728;
   private static final int RESULT_IMAGE_PICK = 9874;
 
+  private static final long FILE_SIZE_LIMIT = 3 * 1024 * 1024;
+  private static final String FILE_SIZE_LIMIT_NAME = "3 megabytes";
+
   private ViewSwitcher mViewSwitcher;
   private ImageView mImageViewSingle;
   private EditText mStoryEditText;
@@ -159,8 +162,16 @@ public class UploadingActivity extends BaseActivity {
 
         mViewSwitcher.showNext();
 
-        setFabToUpload();
-        displayImage(uri);
+        final File file = loadImage(uri);
+        if (fileIsCorrect(file)) {
+          setFabToUpload(file);
+          displayImage(uri);
+        } else {
+          Snackbar.make(mViewSwitcher,
+                        String.format("File exceeds %s, try another!",
+                                      FILE_SIZE_LIMIT_NAME),
+                        Snackbar.LENGTH_LONG).show();
+        }
       }
     }
   }
@@ -173,15 +184,22 @@ public class UploadingActivity extends BaseActivity {
            .into(mImageViewSingle);
   }
 
-  private void setFabToUpload() {
+  private File loadImage(final Uri uri) {
+    return new File(
+        FileUtils.getPath(UploadingActivity.this, mImageUri));
+  }
+
+  private boolean fileIsCorrect(final File file) {
+    return !(file.length() == 0 || file.length() > FILE_SIZE_LIMIT);
+  }
+
+  private void setFabToUpload(final File file) {
     mFab.setImageDrawable(
         getResources().getDrawable(R.drawable.ic_file_upload_white_24dp,
                                    this.getTheme()));
     mFab.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        final File file = new File(
-            FileUtils.getPath(UploadingActivity.this, mImageUri));
         uploadPicture(file);
       }
     });

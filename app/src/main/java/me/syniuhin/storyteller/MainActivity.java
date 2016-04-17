@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import me.syniuhin.storyteller.adapter.SinglePictureAdapter;
 import me.syniuhin.storyteller.net.model.Story;
 import me.syniuhin.storyteller.net.service.api.StoryService;
+import me.syniuhin.storyteller.net.service.api.StoryServiceProxy;
 import me.syniuhin.storyteller.net.service.creator.BasicAuthServiceCreator;
 import me.syniuhin.storyteller.provider.story.StoryColumns;
 import me.syniuhin.storyteller.provider.story.StoryContentValues;
@@ -105,8 +106,9 @@ public class MainActivity extends BaseActivity implements
   }
 
   protected void initService() {
-    mStoryService = new BasicAuthServiceCreator().createInitializer(this)
-                                                 .create(StoryService.class);
+    mStoryService = new StoryServiceProxy(
+        new BasicAuthServiceCreator().createInitializer(this)
+                                     .create(StoryService.class));
     compositeSubscription = new CompositeSubscription();
   }
 
