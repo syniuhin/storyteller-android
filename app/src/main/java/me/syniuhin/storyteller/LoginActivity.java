@@ -50,14 +50,6 @@ public class LoginActivity extends BaseActivity
    */
   private static final int REQUEST_READ_CONTACTS = 0;
 
-  /**
-   * A dummy authentication store containing known user names and passwords.
-   * TODO: remove after connecting to a real authentication system.
-   */
-  private static final String[] DUMMY_CREDENTIALS = new String[] {
-      "foo@example.com:hello", "bar@example.com:world"
-  };
-
   private AutoCompleteTextView mEmailView;
   private EditText mPasswordView;
   private View mProgressView;
@@ -113,6 +105,17 @@ public class LoginActivity extends BaseActivity
         @Override
         public void onClick(View v) {
           attemptRegister();
+        }
+      });
+    }
+
+    Button mGuestSessionButton = (Button) findViewById(
+        R.id.guest_session_button);
+    if (mGuestSessionButton != null) {
+      mGuestSessionButton.setOnClickListener(new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          startDemoSession();
         }
       });
     }
@@ -281,6 +284,21 @@ public class LoginActivity extends BaseActivity
     );
   }
 
+  private void startDemoSession() {
+    PreferenceManager.getDefaultSharedPreferences(this)
+                     .edit()
+                     .putBoolean("isLoggedIn", true)
+                     .putString("basicAuthHeader",
+                                BaseActivity.DEMO_HEADER_BASIC)
+                     .commit();
+    startActivity(new Intent(this, MainActivity.class));
+  }
+
+  @Override
+  protected boolean isDemoRunning() {
+    return false;
+  }
+
   /**
    * Shows the progress UI and hides the login form.
    */
@@ -321,7 +339,6 @@ public class LoginActivity extends BaseActivity
   private void indicateSuccess(String message) {
     Snackbar.make(mLoginFormView, message,
                   Snackbar.LENGTH_SHORT)
-            .setAction("Action", null)
             .show();
   }
 
@@ -342,7 +359,6 @@ public class LoginActivity extends BaseActivity
   private void onDefinedError(String message) {
     Snackbar.make(mLoginFormView, message,
                   Snackbar.LENGTH_SHORT)
-            .setAction("Action", null)
             .show();
     mEmailView.requestFocus();
   }

@@ -53,6 +53,9 @@ public class MainActivity extends BaseActivity implements
     setContentView(R.layout.activity_main);
     if (!isLoggedIn()) {
       startLoginActivity();
+    } else if (isDemoRunning()) {
+      startUploadingActivity();
+      finish();
     } else {
       findViews();
       setupViews();
@@ -181,15 +184,6 @@ public class MainActivity extends BaseActivity implements
     return sp.getBoolean("isLoggedIn", false);
   }
 
-  private void logout() {
-    PreferenceManager.getDefaultSharedPreferences(this)
-                     .edit()
-                     .putBoolean("isLoggedIn", false)
-                     .putLong("userId", -1)
-                     .commit();
-    startLoginActivity();
-  }
-
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
@@ -204,6 +198,7 @@ public class MainActivity extends BaseActivity implements
         return true;
       case R.id.action_logout:
         logout();
+        startLoginActivity();
         return true;
     }
     return super.onOptionsItemSelected(item);

@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.view.View;
+import me.syniuhin.storyteller.BaseActivity;
 import me.syniuhin.storyteller.net.model.BasicResponse;
 import me.syniuhin.storyteller.net.model.Story;
 import okhttp3.MultipartBody;
@@ -118,6 +119,6 @@ public class StoryServiceProxy implements StoryService {
   }
 
   private boolean checkIfCredentialsFake() {
-    return mSp.getString("basicAuthHeader", "").equals("DEMO!");
+    return BaseActivity.isDemoRunning(mContext);
   }
 }
