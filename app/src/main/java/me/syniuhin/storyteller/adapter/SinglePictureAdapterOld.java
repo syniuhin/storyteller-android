@@ -1,4 +1,4 @@
-package me.syniuhin.storyteller.net.adapter;
+package me.syniuhin.storyteller.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -16,11 +16,11 @@ import okhttp3.OkHttpClient;
 /**
  * Created with love, by infm dated on 4/16/16.
  */
-public class SinglePictureAdapter extends ArrayAdapter<Story> {
+public class SinglePictureAdapterOld extends ArrayAdapter<Story> {
   // TODO: Get read of this or prove it can\'t cause leaks.
   private Picasso.Builder picassoBuilder;
 
-  public SinglePictureAdapter(Context context, OkHttpClient httpClient) {
+  public SinglePictureAdapterOld(Context context, OkHttpClient httpClient) {
     super(context, R.layout.single_picture_item);
     picassoBuilder = new Picasso.Builder(context).downloader(
         new OkHttp3Downloader(httpClient));

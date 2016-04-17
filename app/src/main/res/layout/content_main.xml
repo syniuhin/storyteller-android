@@ -13,7 +13,9 @@
         tools:showIn="@layout/activity_main"
         tools:context="me.syniuhin.storyteller.MainActivity">
 
-    <ListView android:id="@+id/main_listview"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"/>
+    <android.support.v7.widget.RecyclerView
+            android:id="@+id/main_recyclerview"
+            android:scrollbars="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 </RelativeLayout>

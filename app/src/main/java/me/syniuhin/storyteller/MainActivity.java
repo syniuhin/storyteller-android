@@ -1,21 +1,28 @@
 package me.syniuhin.storyteller;
 
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
-import me.syniuhin.storyteller.net.adapter.SinglePictureAdapter;
+import me.syniuhin.storyteller.adapter.SinglePictureAdapter;
 import me.syniuhin.storyteller.net.model.Story;
 import me.syniuhin.storyteller.net.service.api.StoryService;
 import me.syniuhin.storyteller.net.service.creator.BasicAuthClientCreator;
 import me.syniuhin.storyteller.net.service.creator.BasicAuthServiceCreator;
+import me.syniuhin.storyteller.provider.story.StoryColumns;
+import me.syniuhin.storyteller.provider.story.StoryContentValues;
 import retrofit2.Response;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -23,13 +30,16 @@ import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements
+    LoaderManager.LoaderCallbacks<Cursor> {
 
   private Toolbar mToolbar;
   private FloatingActionButton mFab;
 
-  private ListView mListView;
+  // private SinglePictureAdapterOld mAdapter;
+  private RecyclerView mRecyclerView;
   private SinglePictureAdapter mAdapter;
+  private RecyclerView.LayoutManager mLayoutManager;
 
   private StoryService mStoryService = null;
 
@@ -50,7 +60,7 @@ public class MainActivity extends BaseActivity {
   protected void findViews() {
     mToolbar = (Toolbar) findViewById(R.id.toolbar);
     mFab = (FloatingActionButton) findViewById(R.id.fab);
-    mListView = (ListView) findViewById(R.id.main_listview);
+    mRecyclerView = (RecyclerView) findViewById(R.id.main_recyclerview);
   }
 
   protected void setupViews() {
@@ -63,9 +73,16 @@ public class MainActivity extends BaseActivity {
       }
     });
 
+    mRecyclerView.setHasFixedSize(true);
+
+    mLayoutManager = new LinearLayoutManager(this);
+    mRecyclerView.setLayoutManager(mLayoutManager);
+
     mAdapter = new SinglePictureAdapter(
-        this, new BasicAuthClientCreator().createClient(this));
-    mListView.setAdapter(mAdapter);
+        null, this, new BasicAuthClientCreator().createClient(this));
+    mRecyclerView.setAdapter(mAdapter);
+
+    getLoaderManager().initLoader(0, null, this);
   }
 
   protected void initService() {
@@ -75,7 +92,11 @@ public class MainActivity extends BaseActivity {
   }
 
   private void loadStories() {
-    Observable<Response<Story.Multiple>> o = mStoryService.getStoryList();
+    final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(
+        this);
+    long timestamp = sp.getLong("storiesLastRefreshed", 0);
+    Observable<Response<Story.Multiple>> o =
+        mStoryService.getStoryListSince(timestamp);
     compositeSubscription.add(
         o.observeOn(AndroidSchedulers.mainThread())
          .subscribeOn(Schedulers.newThread())
@@ -83,10 +104,21 @@ public class MainActivity extends BaseActivity {
            @Override
            public void call(Response<Story.Multiple> multiple) {
              if (multiple.isSuccessful()) {
-               mAdapter.clear();
-               mAdapter.addAll(multiple.body().getStories());
+               for (Story s : multiple.body().getStories()) {
+                 StoryContentValues cv = new StoryContentValues();
+                 cv.putStoryType(s.getStoryType())
+                   .putPictureUrl(s.getPictureUrl())
+                   .putText(s.getText())
+                   .putTimeCreated(s.getTimeCreated());
+                 MainActivity.this.getContentResolver()
+                                  .insert(cv.uri(), cv.values());
+               }
+               sp.edit()
+                 .putLong("storiesLastRefreshed",
+                          System.currentTimeMillis() / 1000)
+                 .apply();
              } else {
-               Snackbar.make(mListView, "Unexpected error happened",
+               Snackbar.make(mRecyclerView, "Unexpected error happened",
                              Snackbar.LENGTH_SHORT).show();
              }
            }
@@ -94,7 +126,7 @@ public class MainActivity extends BaseActivity {
            @Override
            public void call(Throwable throwable) {
              throwable.printStackTrace();
-             Snackbar.make(mListView, "Unexpected error happened",
+             Snackbar.make(mRecyclerView, "Unexpected error happened",
                            Snackbar.LENGTH_SHORT).show();
            }
          })
@@ -141,5 +173,21 @@ public class MainActivity extends BaseActivity {
         return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  @Override
+  public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    return new CursorLoader(this, StoryColumns.CONTENT_URI, null, null, null,
+                            null);
+  }
+
+  @Override
+  public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    mAdapter.swapCursor(data);
+  }
+
+  @Override
+  public void onLoaderReset(Loader<Cursor> loader) {
+    mAdapter.swapCursor(null);
   }
 }
