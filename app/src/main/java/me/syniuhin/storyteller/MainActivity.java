@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -36,7 +37,7 @@ public class MainActivity extends BaseActivity implements
   private Toolbar mToolbar;
   private FloatingActionButton mFab;
 
-  // private SinglePictureAdapterOld mAdapter;
+  private SwipeRefreshLayout mSwipeRefresh;
   private RecyclerView mRecyclerView;
   private SinglePictureAdapter mAdapter;
   private RecyclerView.LayoutManager mLayoutManager;
@@ -53,14 +54,20 @@ public class MainActivity extends BaseActivity implements
       findViews();
       setupViews();
       initService();
-      loadStories();
     }
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    loadStories();
   }
 
   protected void findViews() {
     mToolbar = (Toolbar) findViewById(R.id.toolbar);
     mFab = (FloatingActionButton) findViewById(R.id.fab);
     mRecyclerView = (RecyclerView) findViewById(R.id.main_recyclerview);
+    mSwipeRefresh = (SwipeRefreshLayout) findViewById(R.id.main_swipenrefresh);
   }
 
   protected void setupViews() {
@@ -81,6 +88,14 @@ public class MainActivity extends BaseActivity implements
     mAdapter = new SinglePictureAdapter(
         null, this, new BasicAuthClientCreator().createClient(this));
     mRecyclerView.setAdapter(mAdapter);
+
+    mSwipeRefresh.setOnRefreshListener(
+        new SwipeRefreshLayout.OnRefreshListener() {
+          @Override
+          public void onRefresh() {
+            loadStories();
+          }
+        });
 
     getLoaderManager().initLoader(0, null, this);
   }
@@ -121,6 +136,7 @@ public class MainActivity extends BaseActivity implements
                Snackbar.make(mRecyclerView, "Unexpected error happened",
                              Snackbar.LENGTH_SHORT).show();
              }
+             showProgress(false);
            }
          }, new Action1<Throwable>() {
            @Override
@@ -128,9 +144,14 @@ public class MainActivity extends BaseActivity implements
              throwable.printStackTrace();
              Snackbar.make(mRecyclerView, "Unexpected error happened",
                            Snackbar.LENGTH_SHORT).show();
+             showProgress(false);
            }
          })
     );
+  }
+
+  private void showProgress(boolean show) {
+    mSwipeRefresh.setRefreshing(show);
   }
 
   private void startLoginActivity() {
