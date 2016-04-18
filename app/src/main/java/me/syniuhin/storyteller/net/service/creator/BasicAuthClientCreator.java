@@ -16,7 +16,10 @@ import java.io.IOException;
  * Created with love, by infm dated on 4/16/16.
  */
 public class BasicAuthClientCreator extends ClientCreator {
-
+  /**
+   * @param context: Context to create Picasso.Builder and OkHttpClient.
+   * @return Picasso builder for authenticated image loading.
+   */
   public static Picasso.Builder createPicassoBuilder(Context context) {
     return new Picasso.Builder(context).downloader(
         new OkHttp3Downloader(
@@ -28,7 +31,7 @@ public class BasicAuthClientCreator extends ClientCreator {
         .addInterceptor(new HttpLoggingInterceptor()
                             .setLevel(HttpLoggingInterceptor.Level.BASIC));
 
-    // Get header
+    // Get authentication header.
     final String basic = "Basic " +
         context.getSharedPreferences(BaseActivity.PREFS_KEY,
                                      Context.MODE_PRIVATE)

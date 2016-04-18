@@ -35,6 +35,11 @@ public class StoryServiceProxyBridge implements StoryService {
     mParentView = parentView;
   }
 
+  /**
+   * Substitutes implementation of a real StoryService.
+   *
+   * @param impl: Real StoryService object.
+   */
   public void setImplementation(StoryService impl) {
     mImpl = impl;
   }
