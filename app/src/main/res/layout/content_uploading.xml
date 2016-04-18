@@ -24,40 +24,50 @@
                   android:textSize="22sp"
                   android:id="@+id/uploading_stub_textview"
                   android:text="@string/uploading_stub_text"/>
-        <RelativeLayout android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-            <ProgressBar android:layout_width="wrap_content"
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:orientation="vertical">
+            <ProgressBar android:layout_width="match_parent"
                          android:layout_height="wrap_content"
                          android:id="@+id/uploading_progressbar"
                          style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                         android:layout_alignParentTop="true"
-                         android:layout_centerHorizontal="true"
-                         android:layout_alignStart="@+id/uploading_imageview_single"
-                         android:layout_alignEnd="@+id/uploading_imageview_single"
                          android:indeterminateOnly="true"
                          android:visibility="invisible"/>
 
-            <ImageView android:layout_width="300dp"
-                       android:layout_height="300dp"
-                       android:id="@+id/uploading_imageview_single"
-                       android:layout_centerHorizontal="true"
-                       android:layout_below="@+id/uploading_progressbar"/>
+            <android.support.v4.widget.NestedScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                <RelativeLayout android:layout_width="match_parent"
+                                android:layout_height="match_parent">
 
-            <EditText android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:id="@+id/uploading_edit_text"
-                      android:inputType="textMultiLine"
-                      android:layout_below="@+id/uploading_imageview_single"
-                      android:layout_centerHorizontal="true"
-                      android:layout_margin="@dimen/activity_horizontal_margin"
-                      android:visibility="gone"/>
-            <TextView android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:id="@+id/uploading_text_view"
-                      android:layout_below="@+id/uploading_imageview_single"
-                      android:layout_centerHorizontal="true"
-                      android:layout_margin="@dimen/activity_horizontal_margin"
-                      android:visibility="gone"/>
-        </RelativeLayout>
+                    <ImageView android:layout_width="match_parent"
+                               android:layout_height="wrap_content"
+                               android:id="@+id/uploading_imageview_single"
+                               android:layout_centerHorizontal="true"
+                               android:layout_alignParentTop="true"
+                               android:cropToPadding="true"
+                               android:scaleType="centerCrop"
+                               android:layout_margin="3dp"/>
+
+                    <EditText android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:id="@+id/uploading_edit_text"
+                              android:inputType="textMultiLine"
+                              android:layout_below="@+id/uploading_imageview_single"
+                              android:layout_centerHorizontal="true"
+                              android:layout_margin="@dimen/activity_horizontal_margin"
+                              android:layout_marginBottom="36dp"
+                              android:visibility="gone"/>
+                    <TextView android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:id="@+id/uploading_text_view"
+                              android:layout_below="@+id/uploading_imageview_single"
+                              android:layout_centerHorizontal="true"
+                              android:layout_margin="@dimen/activity_horizontal_margin"
+                              android:layout_marginBottom="36dp"
+                              android:visibility="gone"/>
+                </RelativeLayout>
+            </android.support.v4.widget.NestedScrollView>
+        </LinearLayout>
     </ViewSwitcher>
 </RelativeLayout>

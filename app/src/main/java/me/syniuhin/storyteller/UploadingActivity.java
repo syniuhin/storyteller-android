@@ -186,8 +186,7 @@ public class UploadingActivity extends BaseActivity {
   private void displayImage(final Uri uri) {
     Picasso.with(this)
            .load(uri)
-           .resize(400, 400)
-           .centerCrop()
+           .resize(1080, 0)
            .into(mImageViewSingle);
   }
 

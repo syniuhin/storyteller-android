@@ -22,7 +22,8 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_uploading"/>
+    <include layout="@layout/content_uploading"
+             android:id="@+id/content_uploading"/>
 
     <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
@@ -30,6 +31,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            android:src="@drawable/ic_add_white_24dp"/>
+            android:src="@drawable/ic_add_white_24dp"
+            app:layout_anchor="@+id/content_uploading"
+            app:layout_anchorGravity="bottom|end"
+            app:layout_behavior="me.syniuhin.storyteller.view.FabScrollBehavior"/>
 
 </android.support.design.widget.CoordinatorLayout>
