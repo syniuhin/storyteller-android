@@ -19,10 +19,11 @@ import android.widget.*;
 import com.squareup.picasso.Picasso;
 import me.syniuhin.storyteller.net.model.BasicResponse;
 import me.syniuhin.storyteller.net.model.Story;
+import me.syniuhin.storyteller.net.service.api.DemoAccessService;
 import me.syniuhin.storyteller.net.service.api.StoryService;
+import me.syniuhin.storyteller.net.service.api.StoryServiceDemoAdapter;
 import me.syniuhin.storyteller.net.service.api.StoryServiceProxyBridge;
 import me.syniuhin.storyteller.net.service.creator.BasicAuthServiceCreator;
-import me.syniuhin.storyteller.net.service.creator.DemoServiceCreator;
 import me.syniuhin.storyteller.net.util.FileUtils;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -88,8 +89,9 @@ public class UploadingActivity extends BaseActivity {
   protected void initService() {
     StoryService impl;
     if (isDemoRunning())
-      impl = new DemoServiceCreator().createInitializer(this)
-                                     .create(StoryService.class);
+      impl = new StoryServiceDemoAdapter(
+          new BasicAuthServiceCreator().createInitializer(this)
+                                       .create(DemoAccessService.class));
     else
       impl = new BasicAuthServiceCreator().createInitializer(this)
                                           .create(StoryService.class);
