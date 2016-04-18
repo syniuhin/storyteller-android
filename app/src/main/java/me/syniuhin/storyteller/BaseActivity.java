@@ -5,6 +5,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.view.View;
+import me.syniuhin.storyteller.provider.story.StoryColumns;
 import rx.subscriptions.CompositeSubscription;
 
 import java.util.HashMap;
@@ -64,8 +65,10 @@ abstract public class BaseActivity extends AppCompatActivity {
     getSharedPreferences(PREFS_KEY, MODE_PRIVATE)
         .edit()
         .putBoolean("isLoggedIn", false)
+        .putLong("storiesAfterId", 0)
         .putLong("userId", -1)
         .putString("basicAuthHeader", "")
         .commit();
+    getContentResolver().delete(StoryColumns.CONTENT_URI, null, null);
   }
 }
