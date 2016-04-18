@@ -267,6 +267,8 @@ public class UploadingActivity extends BaseActivity {
            @Override
            public void call(Response<BasicResponse> response) {
              if (response.isSuccessful()) {
+               Snackbar.make(mViewSwitcher, R.string.story_generating,
+                             Snackbar.LENGTH_SHORT).show();
                mImageId = response.body().getImageId();
                requestStory();
              } else {

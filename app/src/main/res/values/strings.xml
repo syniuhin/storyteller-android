@@ -14,10 +14,6 @@
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">Password does not match email</string>
     <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="contacts_permission_rationale">"Contacts permissions are
-        needed for providing email completions."
-    </string>
 
     <string name="ext_storage_permission_rationale">
         We can\'t access you pics!
@@ -27,6 +23,7 @@
 
     <string name="uploading_stub_text">Please upload your files</string>
     <string name="error_picking_picture">Error picking picture</string>
+    <string name="story_generating">Your story is generating…</string>
 
     <string name="sample_time">3rd of March, 3:00 PM</string>
     <string name="sample_story">Lorem ipsum dolor sit amet, consectetur
