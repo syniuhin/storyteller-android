@@ -353,6 +353,7 @@ public class LoginActivity extends BaseActivity
                                          Base64.NO_WRAP))
         .commit();
     startActivity(new Intent(this, MainActivity.class));
+    finish();
   }
 
   private void onDefinedError(String message) {
