@@ -62,8 +62,12 @@ public class StoryServiceProxyBridge implements StoryService {
                                                  @Body Story story) {
     if (!checkInternetConnection())
       return null;
-    if (!checkCredentialsAvailability())
+    if (!checkCredentialsAvailability()) {
+      if (checkIfCredentialsFake())
+        Snackbar.make(mParentView, "Available only for registered users",
+                      Snackbar.LENGTH_LONG).show();
       return null;
+    }
     return mImpl.createStory(imageId, story);
   }
 
@@ -108,17 +112,8 @@ public class StoryServiceProxyBridge implements StoryService {
   }
 
   private boolean checkCredentialsAvailability() {
-    if (TextUtils.isEmpty(mSp.getString("basicAuthHeader", "")) ||
-        checkIfCredentialsFake()) {
-      if (checkIfCredentialsFake())
-        Snackbar.make(mParentView, "Available only for registered users",
-                      Snackbar.LENGTH_LONG).show();
-      else
-        Snackbar.make(mParentView, "You shouldn't see this!",
-                      Snackbar.LENGTH_LONG).show();
-      return false;
-    }
-    return true;
+    return !TextUtils.isEmpty(
+        mSp.getString("basicAuthHeader", "")) && !checkIfCredentialsFake();
   }
 
   private boolean checkIfCredentialsFake() {

@@ -15,10 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.ViewSwitcher;
+import android.widget.*;
 import com.squareup.picasso.Picasso;
 import me.syniuhin.storyteller.net.model.BasicResponse;
 import me.syniuhin.storyteller.net.model.Story;
@@ -50,6 +47,7 @@ public class UploadingActivity extends BaseActivity {
   private ViewSwitcher mViewSwitcher;
   private ImageView mImageViewSingle;
   private EditText mStoryEditText;
+  private TextView mStoryTextView;
   private ProgressBar mProgressView;
 
   private FloatingActionButton mFab;
@@ -79,6 +77,7 @@ public class UploadingActivity extends BaseActivity {
     mImageViewSingle = (ImageView) findViewById(
         R.id.uploading_imageview_single);
     mStoryEditText = (EditText) findViewById(R.id.uploading_edit_text);
+    mStoryTextView = (TextView) findViewById(R.id.uploading_text_view);
     mProgressView = (ProgressBar) findViewById(R.id.uploading_progressbar);
   }
 
@@ -161,17 +160,15 @@ public class UploadingActivity extends BaseActivity {
         // Error
         Snackbar.make(mViewSwitcher, R.string.error_picking_picture,
                       Snackbar.LENGTH_SHORT)
-                //.setAction("Action", null)
                 .show();
       } else {
         // Fetch 1st photo only
         final Uri uri = clipdata.getItemAt(0).getUri(); // A lot of them...
         mImageUri = uri;
 
-        mViewSwitcher.showNext();
-
         final File file = loadImage(uri);
         if (fileIsCorrect(file)) {
+          mViewSwitcher.showNext();
           setFabToUpload(file);
           displayImage(uri);
         } else {
@@ -298,9 +295,14 @@ public class UploadingActivity extends BaseActivity {
              showProgress(false);
              if (response.isSuccessful()) {
                mStory = response.body();
-               mStoryEditText.setVisibility(View.VISIBLE);
-               mStoryEditText.setText(mStory.getText());
-               mStoryEditText.requestFocus();
+               if (isDemoRunning()) {
+                 mStoryTextView.setVisibility(View.VISIBLE);
+                 mStoryTextView.setText(mStory.getText());
+               } else {
+                 mStoryEditText.setVisibility(View.VISIBLE);
+                 mStoryEditText.setText(mStory.getText());
+                 mStoryEditText.requestFocus();
+               }
                setFabToAccept();
              } else {
                handleUnexpectedError(mViewSwitcher);
@@ -318,29 +320,31 @@ public class UploadingActivity extends BaseActivity {
   }
 
   private void saveStory() {
-    showProgress(true);
     mStory.setText(mStoryEditText.getText().toString());
     Observable<Response<Story>> o =
         mStoryService.createStory(mImageId, mStory);
-    compositeSubscription.add(
-        o.observeOn(AndroidSchedulers.mainThread())
-         .subscribeOn(Schedulers.newThread())
-         .subscribe(new Action1<Response<Story>>() {
-           @Override
-           public void call(Response<Story> response) {
-             showProgress(false);
-             if (response.isSuccessful()) {
-               finish();
-             } else {
+    if (o != null) {
+      showProgress(true);
+      compositeSubscription.add(
+          o.observeOn(AndroidSchedulers.mainThread())
+           .subscribeOn(Schedulers.newThread())
+           .subscribe(new Action1<Response<Story>>() {
+             @Override
+             public void call(Response<Story> response) {
+               showProgress(false);
+               if (response.isSuccessful()) {
+                 finish();
+               } else {
+                 handleUnexpectedError(mViewSwitcher);
+               }
+             }
+           }, new Action1<Throwable>() {
+             @Override
+             public void call(Throwable throwable) {
                handleUnexpectedError(mViewSwitcher);
              }
-           }
-         }, new Action1<Throwable>() {
-           @Override
-           public void call(Throwable throwable) {
-             handleUnexpectedError(mViewSwitcher);
-           }
-         })
-    );
+           })
+      );
+    }
   }
 }
