@@ -42,7 +42,7 @@ public class MainActivity extends BaseActivity implements
   private SwipeRefreshLayout mSwipeRefreshView;
   private RecyclerView mRecyclerView;
   private SinglePictureAdapter mAdapter;
-  private RecyclerView.LayoutManager mLayoutManager;
+  private LinearLayoutManager mLayoutManager;
 
   private StoryService mStoryService = null;
 
@@ -88,6 +88,9 @@ public class MainActivity extends BaseActivity implements
     mRecyclerView.setHasFixedSize(true);
 
     mLayoutManager = new LinearLayoutManager(this);
+    mLayoutManager.setReverseLayout(true);
+    mLayoutManager.setStackFromEnd(true);
+
     mRecyclerView.setLayoutManager(mLayoutManager);
 
     mAdapter = new SinglePictureAdapter(
